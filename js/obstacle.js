@@ -1,0 +1,63 @@
+class Obstacle {
+  constructor(gameScreen) {
+    this.gameScreen = gameScreen;
+    this.centerX = 110 + Math.floor(Math.random() * 392);
+    this.centerY = 0;
+    this.radius = 100;
+    this.angle = 0;
+    this.speed = 0.05;
+    this.downwardSpeed = 1;
+
+    this.width = 30;
+    this.height = 45;
+    this.element = document.createElement("img");
+
+    this.sprite1 = "./images/enemy-small1.png";
+    this.sprite2 = "./images/enemy-small2.png";
+
+    this.switchImageInterval = 60;
+    this.switchImageTimer = setInterval(
+      () => this.switchImage(),
+      this.switchImageInterval
+    );
+
+    this.element.setAttribute("src", this.sprite1);
+    this.element.style.position = "absolute";
+    this.element.style.width = `${this.width}px`;
+    this.element.style.height = `${this.height}px`;
+
+    this.gameScreen.appendChild(this.element);
+    this.updatePosition();
+  }
+
+  switchImage() {
+    if (this.element.getAttribute("src") === this.sprite1) {
+      this.element.setAttribute("src", this.sprite2);
+    } else {
+      this.element.setAttribute("src", this.sprite1);
+    }
+  }
+
+  move() {
+    // Calculate the new position using sine and cosine to create a circular pattern
+    this.left = this.centerX + this.radius * Math.cos(this.angle);
+    this.top = this.centerY + this.radius * Math.sin(this.angle);
+
+    this.centerY += this.downwardSpeed;
+
+    // Increment the angle to make the obstacle continue in a circle
+    this.angle += this.speed;
+
+    // Reset the angle after a full loop (2 * Math.PI radians = 360 degrees)
+    // Keep angle within 0 to 2*PI range for smooth looping
+    if (this.angle >= 2 * Math.PI) {
+      this.angle -= 2 * Math.PI;
+    }
+
+    this.updatePosition();
+  }
+  updatePosition() {
+    this.element.style.left = `${this.left}px`;
+    this.element.style.top = `${this.top}px`;
+  }
+}
