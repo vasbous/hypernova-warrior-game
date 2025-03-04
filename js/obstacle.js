@@ -1,6 +1,7 @@
-class Obstacle {
-  constructor(gameScreen) {
+class enemySmall {
+  constructor(gameScreen, game) {
     this.gameScreen = gameScreen;
+    this.game = game;
     this.centerX = 120 + Math.floor(Math.random() * 272);
     this.centerY = 0;
     this.radius = 100;
@@ -32,6 +33,24 @@ class Obstacle {
     this.left = this.centerX + this.radius * Math.cos(this.angle);
     this.top = this.centerY + this.radius * Math.sin(this.angle);
     this.updatePosition();
+
+    // Fire a laser at a random time between 0.5 and 1.5 seconds
+    this.fireLaserTimeout = setTimeout(
+      () => this.fireLaser(),
+      500 + Math.random() * 1000
+    );
+  }
+
+  fireLaser() {
+    if (this.gameScreen && this.game) {
+      const newLaser = new enemyLaser(
+        this.gameScreen,
+        this.left + this.width / 2 - 15,
+        this.top + this.height
+      );
+      this.game.enemyLasers.push(newLaser);
+      console.log("Enemy laser fired at:", newLaser.top);
+    }
   }
 
   switchImage() {

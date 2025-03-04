@@ -15,15 +15,16 @@ class Game {
     this.width = 512;
     this.obstacles = [];
     this.myLasers = [];
+    this.enemyLasers = [];
     this.score = 0;
-    this.lives = 10;
+    this.lives = 3;
     this.gameIsOver = false;
     this.gameIntervalId;
     this.gameLoopFrequency = Math.round(1000 / 60); // 60fps
 
     // Background scrolling properties
     this.backgroundY = 0;
-    this.backgroundSpeed = 2; // This controls the scrolling speed
+    this.backgroundSpeed = 2;
   }
 
   start() {
@@ -43,8 +44,6 @@ class Game {
   }
 
   gameLoop() {
-    console.log("in the game loop");
-
     this.update();
 
     if (this.gameIsOver) {
@@ -92,24 +91,26 @@ class Game {
     // Create a new obstacle based on a random probability
     // when there are less than the specified number of other obstacles on the screen
     if (Math.random() > 0.98 && this.obstacles.length < 3) {
-      this.obstacles.push(new Obstacle(this.gameScreen));
+      this.obstacles.push(new enemySmall(this.gameScreen, this));
     }
 
-    // Check lasers collision with enemies
-    for (let j = 0; j < this.myLasers.length; j++) {
+    for (let j = this.myLasers.length - 1; j >= 0; j--) {
       const currentMyLaser = this.myLasers[j];
 
-      for (let i = 0; i < this.obstacles.length; i++) {
+      for (let i = this.obstacles.length - 1; i >= 0; i--) {
         const obstacle = this.obstacles[i];
 
         if (currentMyLaser.didCollide(obstacle)) {
+          // Remove laser immediately
+          currentMyLaser.element.remove();
+          this.myLasers.splice(j, 1);
+
+          // Trigger explosion at the obstacle's location
+          new Explosion(obstacle.left, obstacle.top, this.gameScreen, () => {});
+
           obstacle.element.remove();
           this.obstacles.splice(i, 1);
           i--;
-          currentMyLaser.element.remove();
-          this.myLasers.splice(j, 1);
-          j--;
-          break;
         }
       }
     }
@@ -118,6 +119,37 @@ class Game {
     for (let k = 0; k < this.myLasers.length; k++) {
       const currentMyLaser = this.myLasers[k];
       currentMyLaser.move();
+    }
+
+    for (let l = this.enemyLasers.length - 1; l >= 0; l--) {
+      const currentEnemyLaser = this.enemyLasers[l];
+
+      // Move the laser
+      currentEnemyLaser.move();
+
+      // Check if the laser hits the player
+      if (this.player.didCollide(currentEnemyLaser)) {
+        currentEnemyLaser.element.remove();
+        this.enemyLasers.splice(l, 1);
+        this.lives--;
+
+        // Show explosion at player's location
+        new Explosion(
+          this.player.left,
+          this.player.top,
+          this.gameScreen,
+          () => {}
+        );
+
+        if (this.lives === 0) {
+          this.endGame();
+        }
+      }
+      // Remove laser if it goes off screen
+      else if (currentEnemyLaser.top > this.height) {
+        currentEnemyLaser.element.remove();
+        this.enemyLasers.splice(l, 1);
+      }
     }
   }
 

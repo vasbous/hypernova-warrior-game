@@ -53,7 +53,6 @@ window.onload = function () {
           game.player.directionY = 4;
           break;
         case " ":
-          console.log("Space is being pressed");
           if (!game.player.isShooting) {
             const myShipLeft = game.player.left + 5;
             const myShipTop = game.player.top - 40;
