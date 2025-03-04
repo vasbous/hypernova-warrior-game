@@ -12,7 +12,7 @@
     <main>
       <!-- #game-intro is initially shown on the game start screen -->
       <div id="game-intro">
-        <img src="./images/temp-logo.jpeg" alt="" class="logo-img" />
+        <img src="./images/temp-logo.png" alt="" class="logo-img" />
         <br />
         <button id="start-button">Start Game</button>
         <p>Use the left and right arrow to control the car!</p>
@@ -31,9 +31,14 @@
         <br />
         <button id="restart-button">Restart</button>
       </div>
+
+      <audio id="game-soundtrack" preload="auto">
+        <source src="assets/gameSoundtrack.mp3" type="audio/mp3" />
+        Your browser does not support this audio element.
+      </audio>
     </main>
 
-    <script type="text/javascript" src="js/component.js"></script>
+    <script type="text/javascript" src="js/weapons.js"></script>
     <script type="text/javascript" src="js/obstacle.js"></script>
     <script type="text/javascript" src="js/player.js"></script>
     <script type="text/javascript" src="js/game.js"></script>

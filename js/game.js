@@ -14,6 +14,7 @@ class Game {
     this.height = 768;
     this.width = 512;
     this.obstacles = [];
+    this.myLasers = [];
     this.score = 0;
     this.lives = 10;
     this.gameIsOver = false;
@@ -92,6 +93,31 @@ class Game {
     // when there are less than the specified number of other obstacles on the screen
     if (Math.random() > 0.98 && this.obstacles.length < 3) {
       this.obstacles.push(new Obstacle(this.gameScreen));
+    }
+
+    // Check lasers collision with enemies
+    for (let j = 0; j < this.myLasers.length; j++) {
+      const currentMyLaser = this.myLasers[j];
+
+      for (let i = 0; i < this.obstacles.length; i++) {
+        const obstacle = this.obstacles[i];
+
+        if (currentMyLaser.didCollide(obstacle)) {
+          obstacle.element.remove();
+          this.obstacles.splice(i, 1);
+          i--;
+          currentMyLaser.element.remove();
+          this.myLasers.splice(j, 1);
+          j--;
+          break;
+        }
+      }
+    }
+
+    //this is a loop just to move the projectiles
+    for (let k = 0; k < this.myLasers.length; k++) {
+      const currentMyLaser = this.myLasers[k];
+      currentMyLaser.move();
     }
   }
 

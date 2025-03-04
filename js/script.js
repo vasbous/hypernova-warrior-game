@@ -3,6 +3,8 @@ window.onload = function () {
   const restartButton = document.getElementById("restart-button");
   let game;
 
+  const gameSoundTrack = document.getElementById("game-soundtrack");
+
   startButton.addEventListener("click", function () {
     startGame();
   });
@@ -13,6 +15,7 @@ window.onload = function () {
 
   function startGame() {
     console.log("start game");
+
     game = new Game();
     game.start();
   }
@@ -31,6 +34,7 @@ window.onload = function () {
       "ArrowUp",
       "ArrowRight",
       "ArrowDown",
+      " ",
     ];
 
     if (possibleKeystrokes.includes(key)) {
@@ -47,6 +51,21 @@ window.onload = function () {
           break;
         case "ArrowDown":
           game.player.directionY = 4;
+          break;
+        case " ":
+          console.log("Space is being pressed");
+          if (!game.player.isShooting) {
+            const myShipLeft = game.player.left + 5;
+            const myShipTop = game.player.top - 40;
+            game.myLasers.push(
+              new myLaser(game.gameScreen, myShipLeft, myShipTop)
+            );
+            game.player.isShooting = true;
+
+            setTimeout(() => {
+              game.player.isShooting = false;
+            }, 400);
+          }
           break;
       }
     }

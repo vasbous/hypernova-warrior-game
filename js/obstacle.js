@@ -1,7 +1,7 @@
 class Obstacle {
   constructor(gameScreen) {
     this.gameScreen = gameScreen;
-    this.centerX = 110 + Math.floor(Math.random() * 392);
+    this.centerX = 120 + Math.floor(Math.random() * 272);
     this.centerY = 0;
     this.radius = 100;
     this.angle = 0;
@@ -27,6 +27,10 @@ class Obstacle {
     this.element.style.height = `${this.height}px`;
 
     this.gameScreen.appendChild(this.element);
+
+    // Initialize the position properly before rendering
+    this.left = this.centerX + this.radius * Math.cos(this.angle);
+    this.top = this.centerY + this.radius * Math.sin(this.angle);
     this.updatePosition();
   }
 
