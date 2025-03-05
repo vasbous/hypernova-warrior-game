@@ -17,7 +17,7 @@ class Explosion {
     // Play explosion sound
     this.sound = new Audio("./assets/explosion.mp3");
     this.sound.preload = "auto";
-    this.sound.volume = 0.2; // Adjust volume as needed
+    this.sound.volume = 0.1; // Adjust volume as needed
     this.sound
       .play()
       .catch((error) => console.warn("Explosion sound error:", error));

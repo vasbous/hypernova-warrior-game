@@ -9,6 +9,7 @@ class Player {
     this.directionY = 0;
     this.frame = 1; // Tracks thruster animation
     this.element = document.createElement("img");
+    this.lives = 5;
 
     // Preload image groups for ship animation
     this.imageSet1 = [
