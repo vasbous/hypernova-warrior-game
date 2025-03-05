@@ -17,14 +17,29 @@ class Game {
     this.enemiesLarge = [];
     this.myLasers = [];
     this.enemyLasers = [];
+    this.backgroundPlanets = [];
     this.score = 0;
     this.gameIsOver = false;
     this.gameIntervalId;
     this.gameLoopFrequency = Math.round(1000 / 60); // 60fps
-
     // Background scrolling properties
     this.backgroundY = 0;
     this.backgroundSpeed = 2;
+
+    this.soundtrack = new Audio("./assets/gameSoundtrack.mp3");
+    this.soundtrack.loop = true;
+    this.soundtrack.volume = 0.1;
+  }
+
+  spawnBackgroundPlanet() {
+    if (this.gameIsOver) return;
+
+    this.backgroundPlanets.push(new backgroundPlanets(this.gameScreen));
+
+    // Generate next planet in 2-5 seconds
+    const nextSpawnTime = Math.random() * (5000 - 2000) + 2000;
+
+    setTimeout(() => this.spawnBackgroundPlanet(), nextSpawnTime);
   }
 
   start() {
@@ -35,6 +50,13 @@ class Game {
     this.startScreen.style.display = "none";
 
     this.gameScreen.style.display = "block";
+
+    this.spawnBackgroundPlanet();
+
+    this.soundtrack.currentTime = 0;
+    this.soundtrack
+      .play()
+      .catch((error) => console.warn("Soundtrack autoplay blocked:", error));
 
     // Executes the gameLoop on a fequency of 60 times per second and stores the ID of the interval.
     this.gameIntervalId = setInterval(() => {
@@ -63,6 +85,15 @@ class Game {
 
     // Apply background position update
     this.gameScreen.style.backgroundPositionY = `${this.backgroundY}px`;
+
+    this.backgroundPlanets.forEach((planet, index) => {
+      planet.move();
+
+      if (planet.top > this.gameScreen.clientHeight) {
+        planet.element.remove();
+        this.backgroundPlanets.splice(index, 1);
+      }
+    });
 
     // Small enemy movement and collision
     for (let i = this.enemiesSmall.length - 1; i >= 0; i--) {
@@ -121,13 +152,14 @@ class Game {
     }
 
     // Create new enemies
-    if (Math.random() > 0.98 && this.enemiesSmall.length < 3) {
-      this.enemiesSmall.push(new enemySmall(this.gameScreen, this));
+    if (this.gameIsOver === false) {
+      if (Math.random() > 0.98 && this.enemiesSmall.length < 2) {
+        this.enemiesSmall.push(new enemySmall(this.gameScreen, this));
+      }
+      if (Math.random() > 0.98 && this.enemiesLarge.length < 1) {
+        this.enemiesLarge.push(new enemyLarge(this.gameScreen, this));
+      }
     }
-    if (Math.random() > 0.98 && this.enemiesLarge.length < 1) {
-      this.enemiesLarge.push(new enemyLarge(this.gameScreen, this));
-    }
-
     // Player lasers
     for (let j = this.myLasers.length - 1; j >= 0; j--) {
       const currentMyLaser = this.myLasers[j];
@@ -146,6 +178,7 @@ class Game {
           );
           this.enemiesSmall[i].element.remove();
           this.enemiesSmall.splice(i, 1);
+          this.score++;
           break;
         }
       }
@@ -169,6 +202,7 @@ class Game {
           if (this.enemiesLarge[i].lives <= 0) {
             this.enemiesLarge[i].element.remove();
             this.enemiesLarge.splice(i, 1);
+            this.score += 2;
           }
           break;
         }
@@ -184,6 +218,12 @@ class Game {
     for (let l = this.enemyLasers.length - 1; l >= 0; l--) {
       const currentEnemyLaser = this.enemyLasers[l];
 
+      // If laser doesn't exist or has been removed, skip it
+      if (!currentEnemyLaser) {
+        continue;
+      }
+
+      // Call move if laser exists
       currentEnemyLaser.move();
 
       if (this.player.didCollide(currentEnemyLaser)) {
@@ -192,13 +232,13 @@ class Game {
         this.player.lives--;
 
         new Explosion(
-          this.player.left,
-          this.player.top,
+          this.player.left - 25,
+          this.player.top - 25,
           this.gameScreen,
           () => {}
         );
 
-        if (this.player.lives === 0) {
+        if (this.player.lives <= 0) {
           this.endGame();
         }
       } else if (currentEnemyLaser.top > this.height) {
@@ -217,6 +257,9 @@ class Game {
       clearInterval(this.gameIntervalId);
     }
 
+    this.soundtrack.pause();
+    this.soundtrack.currentTime = 0;
+
     // Remove player
     if (this.player && this.player.element) {
       this.player.element.remove();
@@ -224,19 +267,30 @@ class Game {
 
     // Stop and remove all enemies
     this.enemiesSmall.forEach((enemy) => {
-      clearTimeout(enemy.fireLaserTimeout1);
-      clearTimeout(enemy.fireLaserTimeout2);
-      enemy.element.remove();
-    });
-    this.enemiesLarge.forEach((enemy) => {
-      clearTimeout(enemy.fireLaserTimeout1);
-      clearTimeout(enemy.fireLaserTimeout2);
+      if (enemy.fireLaserTimeout) clearTimeout(enemy.fireLaserTimeout);
+      if (enemy.fireInterval) clearInterval(enemy.fireInterval);
+
       enemy.element.remove();
     });
 
-    // Stop all active lasers
+    this.enemiesLarge.forEach((enemy) => {
+      if (enemy.fireLaserTimeout) clearTimeout(enemy.fireLaserTimeout);
+      if (enemy.fireInterval) clearInterval(enemy.fireInterval);
+
+      enemy.element.remove();
+    });
+
+    // Stop and remove all player lasers
     this.myLasers.forEach((laser) => laser.element.remove());
-    this.enemyLasers.forEach((laser) => laser.element.remove());
+
+    // Stop and remove all enemy lasers and stop sounds
+    this.enemyLasers.forEach((laser) => {
+      laser.element.remove();
+      if (laser.sound) {
+        laser.sound.pause();
+        laser.sound.currentTime = 0;
+      }
+    });
 
     // Clear arrays
     this.enemiesSmall = [];

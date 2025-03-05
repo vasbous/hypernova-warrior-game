@@ -3,7 +3,7 @@ class myLaser {
     this.left = myShipLeft;
     this.top = myShipTop;
     this.width = 30;
-    this.height = 55;
+    this.height = 50;
     this.sound = new Audio("./assets/myLaser.wav");
     this.sound.preload = "auto";
     this.sound.volume = 0.1;
@@ -33,9 +33,9 @@ class myLaser {
     this.element.remove();
   }
 
-  didCollide(obstacle) {
+  didCollide(enemies) {
     const projectileRect = this.element.getBoundingClientRect();
-    const obstacleRect = obstacle.element.getBoundingClientRect();
+    const obstacleRect = enemies.element.getBoundingClientRect();
 
     if (
       projectileRect.left < obstacleRect.right &&
@@ -54,8 +54,8 @@ class enemyLaser {
   constructor(gameScreen, enemyShipLeft, enemyShipTop) {
     this.left = enemyShipLeft;
     this.top = enemyShipTop;
-    this.width = 30;
-    this.height = 55;
+    this.width = 25;
+    this.height = 45;
     this.sound = new Audio("./assets/enemyLaser.mp3");
     this.sound.preload = "auto";
     this.sound.volume = 0.1;
@@ -85,9 +85,9 @@ class enemyLaser {
     this.element.remove();
   }
 
-  didCollide(obstacle) {
+  didCollide(enemies) {
     const projectileRect = this.element.getBoundingClientRect();
-    const obstacleRect = obstacle.element.getBoundingClientRect();
+    const obstacleRect = enemies.element.getBoundingClientRect();
 
     if (
       projectileRect.left < obstacleRect.right &&

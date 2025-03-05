@@ -2,7 +2,7 @@ class enemySmall {
   constructor(gameScreen, game) {
     this.gameScreen = gameScreen;
     this.game = game;
-    this.centerX = 120 + Math.floor(Math.random() * 272);
+    this.centerX = 120 + Math.floor(Math.random() * 252);
     this.centerY = 0;
     this.radius = 100;
     this.angle = 0;
@@ -12,17 +12,7 @@ class enemySmall {
     this.width = 30;
     this.height = 45;
     this.element = document.createElement("img");
-
-    this.sprite1 = "./images/enemy-small1.png";
-    this.sprite2 = "./images/enemy-small2.png";
-
-    this.switchImageInterval = 60;
-    this.switchImageTimer = setInterval(
-      () => this.switchImage(),
-      this.switchImageInterval
-    );
-
-    this.element.setAttribute("src", this.sprite1);
+    this.element.src = `./images/enemySmall.gif`;
     this.element.style.position = "absolute";
     this.element.style.width = `${this.width}px`;
     this.element.style.height = `${this.height}px`;
@@ -40,37 +30,33 @@ class enemySmall {
       500 + Math.random() * 1000
     );
 
-    // Fire a laser at a random time between 0.5 and 1.5 seconds
-    this.fireLaserTimeout = setTimeout(
-      () => this.fireLaser(),
-      2000 + Math.random() * 3000
-    );
-
-    // Fire a laser at a random time between 0.5 and 1.5 seconds
-    this.fireLaserTimeout = setTimeout(
-      () => this.fireLaser(),
-      2000 + Math.random() * 3000
-    );
+    // After the first shot, continue firing every 2 second
+    this.fireInterval = setInterval(() => this.fireLaser(), 2000);
   }
 
   fireLaser() {
-    if (this.gameScreen && this.game) {
-      const newLaser = new enemyLaser(
-        this.gameScreen,
-        this.left + this.width / 2 - 15,
-        this.top + this.height
-      );
-      this.game.enemyLasers.push(newLaser);
-      console.log("Enemy laser fired at:", newLaser.top);
+    // Prevent firing if the game is over or the enemy has been removed
+    if (
+      this.game.gameIsOver ||
+      !this.element ||
+      !document.body.contains(this.element)
+    ) {
+      clearInterval(this.fireInterval); // Stop interval if enemy is removed
+      return;
     }
-  }
 
-  switchImage() {
-    if (this.element.getAttribute("src") === this.sprite1) {
-      this.element.setAttribute("src", this.sprite2);
-    } else {
-      this.element.setAttribute("src", this.sprite1);
-    }
+    // Limit max enemy lasers to 5 on screen at once
+    // if (this.game.enemyLasers.length >= 5) {
+    //   return;
+    // }
+
+    // Create new laser
+    const newLaser = new enemyLaser(
+      this.gameScreen,
+      this.left + this.width / 2 - 15,
+      this.top + this.height
+    );
+    this.game.enemyLasers.push(newLaser);
   }
 
   move() {
@@ -101,7 +87,7 @@ class enemyLarge {
   constructor(gameScreen, game) {
     this.gameScreen = gameScreen;
     this.game = game;
-    this.centerX = 120 + Math.floor(Math.random() * 272);
+    this.centerX = 140 + Math.floor(Math.random() * 222);
     this.centerY = 0;
     this.radius = 100;
     this.angle = 0;
@@ -112,17 +98,8 @@ class enemyLarge {
     this.width = 72;
     this.height = 48;
     this.element = document.createElement("img");
+    this.element.src = `./images/enemyLarge.gif`;
 
-    this.sprite3 = "./images/enemy-large1.png";
-    this.sprite4 = "./images/enemy-large2.png";
-
-    this.switchImageInterval = 60;
-    this.switchImageTimer = setInterval(
-      () => this.switchImage(),
-      this.switchImageInterval
-    );
-
-    this.element.setAttribute("src", this.sprite1);
     this.element.style.position = "absolute";
     this.element.style.width = `${this.width}px`;
     this.element.style.height = `${this.height}px`;
@@ -140,37 +117,33 @@ class enemyLarge {
       500 + Math.random() * 1000
     );
 
-    // Fire a laser at a random time between 0.5 and 1.5 seconds
-    this.fireLaserTimeout = setTimeout(
-      () => this.fireLaser(),
-      3000 + Math.random() * 3000
-    );
-
-    // Fire a laser at a random time between 0.5 and 1.5 seconds
-    this.fireLaserTimeout = setTimeout(
-      () => this.fireLaser(),
-      3000 + Math.random() * 3000
-    );
+    // After the first shot, continue firing every 3 seconds
+    this.fireInterval = setInterval(() => this.fireLaser(), 4000);
   }
 
   fireLaser() {
-    if (this.gameScreen && this.game) {
-      const newLaser = new enemyLaser(
-        this.gameScreen,
-        this.left + this.width / 2 - 15,
-        this.top + this.height
-      );
-      this.game.enemyLasers.push(newLaser);
-      console.log("Enemy laser fired at:", newLaser.top);
+    // Prevent firing if the game is over or the enemy has been removed
+    if (
+      this.game.gameIsOver ||
+      !this.element ||
+      !document.body.contains(this.element)
+    ) {
+      clearInterval(this.fireInterval); // Stop interval if enemy is removed
+      return;
     }
-  }
 
-  switchImage() {
-    if (this.element.getAttribute("src") === this.sprite3) {
-      this.element.setAttribute("src", this.sprite4);
-    } else {
-      this.element.setAttribute("src", this.sprite3);
-    }
+    // Limit max enemy lasers to 5 on screen at once
+    // if (this.game.enemyLasers.length >= 5) {
+    //   return;
+    // }
+
+    // Create new laser
+    const newLaser = new enemyLaser(
+      this.gameScreen,
+      this.left + this.width / 2 - 15,
+      this.top + this.height
+    );
+    this.game.enemyLasers.push(newLaser);
   }
 
   move() {

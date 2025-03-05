@@ -9,7 +9,7 @@ class Player {
     this.directionY = 0;
     this.frame = 1; // Tracks thruster animation
     this.element = document.createElement("img");
-    this.lives = 5;
+    this.lives = 20;
 
     // Preload image groups for ship animation
     this.imageSet1 = [
@@ -78,9 +78,9 @@ class Player {
     this.element.style.top = `${this.top}px`;
   }
 
-  didCollide(obstacle) {
+  didCollide(enemies) {
     const playerRect = this.element.getBoundingClientRect();
-    const obstacleRect = obstacle.element.getBoundingClientRect();
+    const obstacleRect = enemies.element.getBoundingClientRect();
 
     if (
       playerRect.left < obstacleRect.right &&
