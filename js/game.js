@@ -17,6 +17,8 @@ class Game {
     this.enemiesLarge = [];
     this.myLasers = [];
     this.enemyLasers = [];
+    this.shieldPowerUps = [];
+    this.weaponPowerUps = [];
     this.backgroundPlanets = [];
     this.score = 0;
     this.gameIsOver = false;
@@ -34,7 +36,7 @@ class Game {
   spawnBackgroundPlanet() {
     if (this.gameIsOver) return;
 
-    this.backgroundPlanets.push(new backgroundPlanets(this.gameScreen));
+    this.backgroundPlanets.push(new BackgroundPlanets(this.gameScreen));
 
     // Generate next planet in 2-5 seconds
     const nextSpawnTime = Math.random() * (5000 - 2000) + 2000;
@@ -51,6 +53,8 @@ class Game {
 
     this.gameScreen.style.display = "block";
 
+    this.spawnPowerUps();
+    setInterval(() => this.spawnPowerUps(), 5000); // Spawn power-ups every 5 seconds
     this.spawnBackgroundPlanet();
 
     this.soundtrack.currentTime = 0;
@@ -74,6 +78,31 @@ class Game {
 
   update() {
     this.player.move();
+
+    // Move power-ups and check for collisions
+    this.shieldPowerUps.forEach((powerUp, index) => {
+      powerUp.move();
+      if (this.player.didCollide(powerUp)) {
+        powerUp.element.remove();
+        this.shieldPowerUps.splice(index, 1);
+        this.player.addShield();
+      } else if (powerUp.top > this.height) {
+        powerUp.element.remove();
+        this.shieldPowerUps.splice(index, 1);
+      }
+    });
+
+    this.weaponPowerUps.forEach((powerUp, index) => {
+      powerUp.move();
+      if (this.player.didCollide(powerUp)) {
+        powerUp.element.remove();
+        this.weaponPowerUps.splice(index, 1);
+        this.upgradeWeapon();
+      } else if (powerUp.top > this.height) {
+        powerUp.element.remove();
+        this.weaponPowerUps.splice(index, 1);
+      }
+    });
 
     // Move the background downward
     this.backgroundY += this.backgroundSpeed;
@@ -104,15 +133,20 @@ class Game {
       if (this.player.didCollide(enemy)) {
         enemy.element.remove();
         this.enemiesSmall.splice(i, 1);
-        this.player.lives--;
 
-        // Show explosion at player's location
-        new Explosion(
-          this.player.left,
-          this.player.top,
-          this.gameScreen,
-          () => {}
-        );
+        if (this.player.hasShield) {
+          this.player.removeShield();
+        } else {
+          this.player.lives--;
+
+          // Show explosion at player's location
+          new Explosion(
+            this.player.left,
+            this.player.top,
+            this.gameScreen,
+            () => {}
+          );
+        }
       }
       // Remove if enemy moves off-screen
       else if (enemy.top > this.height) {
@@ -130,15 +164,20 @@ class Game {
       if (this.player.didCollide(enemy)) {
         enemy.element.remove();
         this.enemiesLarge.splice(i, 1);
-        this.player.lives--;
 
-        // Show explosion at player's location
-        new Explosion(
-          this.player.left,
-          this.player.top,
-          this.gameScreen,
-          () => {}
-        );
+        if (this.player.hasShield) {
+          this.player.removeShield();
+        } else {
+          this.player.lives--;
+
+          // Show explosion at player's location
+          new Explosion(
+            this.player.left,
+            this.player.top,
+            this.gameScreen,
+            () => {}
+          );
+        }
       }
       // Remove if enemy moves off-screen
       else if (enemy.top > this.height) {
@@ -147,13 +186,13 @@ class Game {
       }
     }
 
-    if (this.lives === 0) {
+    if (this.player.lives === 0) {
       this.endGame();
     }
 
     // Create new enemies
     if (this.gameIsOver === false) {
-      if (Math.random() > 0.98 && this.enemiesSmall.length < 2) {
+      if (Math.random() > 0.98 && this.enemiesSmall.length < 3) {
         this.enemiesSmall.push(new enemySmall(this.gameScreen, this));
       }
       if (Math.random() > 0.98 && this.enemiesLarge.length < 1) {
@@ -190,7 +229,11 @@ class Game {
           this.myLasers.splice(j, 1);
 
           // Reduce large enemy's health
-          this.enemiesLarge[i].lives--;
+          if (this.player.weaponUpgraded === true) {
+            this.enemiesLarge[i].lives -= 2;
+          } else {
+            this.enemiesLarge[i].lives--;
+          }
 
           new Explosion(
             this.enemiesLarge[i].left,
@@ -229,23 +272,59 @@ class Game {
       if (this.player.didCollide(currentEnemyLaser)) {
         currentEnemyLaser.element.remove();
         this.enemyLasers.splice(l, 1);
-        this.player.lives--;
 
-        new Explosion(
-          this.player.left - 25,
-          this.player.top - 25,
-          this.gameScreen,
-          () => {}
-        );
+        if (this.player.hasShield) {
+          this.player.removeShield();
+        } else {
+          this.player.lives--;
+          console.log(this.player.lives);
 
-        if (this.player.lives <= 0) {
-          this.endGame();
+          new Explosion(
+            this.player.left - 25,
+            this.player.top - 25,
+            this.gameScreen,
+            () => {}
+          );
+
+          if (this.player.lives <= 0) {
+            this.endGame();
+          }
         }
       } else if (currentEnemyLaser.top > this.height) {
         currentEnemyLaser.element.remove();
         this.enemyLasers.splice(l, 1);
       }
     }
+  }
+
+  upgradeWeapon() {
+    this.player.weaponUpgraded = true;
+    this.player.laserImage = "./images/bolt2.gif";
+    this.player.laserSpeed = 1.25;
+    this.player.laserSize = 2;
+
+    setTimeout(() => {
+      if (this.gameIsOver) return; // Prevents changes after game ends
+      this.player.weaponUpgraded = false;
+      this.player.laserImage = "./images/bolt.gif";
+      this.player.laserSpeed = 1;
+      this.player.laserSize = 1;
+    }, 3000);
+  }
+
+  spawnPowerUps() {
+    if (!this.player.hasShield && Math.random() > 0.5) {
+      this.shieldPowerUps.push(new ShieldPowerUp(this.gameScreen));
+    }
+    if (!this.player.weaponUpgraded && Math.random() > 0.5) {
+      this.weaponPowerUps.push(new WeaponPowerUp(this.gameScreen));
+    }
+  }
+
+  addShield() {
+    if (this.hasShield) return; // Prevent multiple shields
+    this.hasShield = true;
+    this.shield = new Shield(this); // Activate shield when acquired
   }
 
   // Create a new method responsible for ending the game

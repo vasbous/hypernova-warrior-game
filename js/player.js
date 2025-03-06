@@ -9,7 +9,10 @@ class Player {
     this.directionY = 0;
     this.frame = 1; // Tracks thruster animation
     this.element = document.createElement("img");
-    this.lives = 20;
+    this.lives = 3;
+    this.weaponUpgraded = false;
+    this.hasShield = false;
+    this.shield = null;
 
     // Preload image groups for ship animation
     this.imageSet1 = [
@@ -38,6 +41,20 @@ class Player {
     this.animateThruster();
   }
 
+  addShield() {
+    if (this.hasShield) return; // Prevent multiple shields
+    this.hasShield = true;
+    this.shield = new Shield(this); // Activate shield when acquired
+  }
+
+  removeShield() {
+    if (this.shield) {
+      this.shield.deactivate();
+      this.hasShield = false;
+      this.shield = null;
+    }
+  }
+
   animateThruster() {
     setInterval(() => {
       this.currentSet = this.currentSet === 0 ? 1 : 0; // Alternate between sets
@@ -62,6 +79,10 @@ class Player {
     // Update ship's appearance on screen based on movement
     this.updateImage();
     this.updatePosition();
+
+    if (this.shield) {
+      this.shield.updatePosition();
+    }
   }
 
   updateImage() {
@@ -78,19 +99,16 @@ class Player {
     this.element.style.top = `${this.top}px`;
   }
 
-  didCollide(enemies) {
+  didCollide(obj) {
+    if (!obj || !obj.element) return false; // Ensure object and its element exist
     const playerRect = this.element.getBoundingClientRect();
-    const obstacleRect = enemies.element.getBoundingClientRect();
+    const objRect = obj.element.getBoundingClientRect();
 
-    if (
-      playerRect.left < obstacleRect.right &&
-      playerRect.right > obstacleRect.left &&
-      playerRect.top < obstacleRect.bottom &&
-      playerRect.bottom > obstacleRect.top
-    ) {
-      return true;
-    } else {
-      return false;
-    }
+    return !(
+      playerRect.top > objRect.bottom ||
+      playerRect.right < objRect.left ||
+      playerRect.bottom < objRect.top ||
+      playerRect.left > objRect.right
+    );
   }
 }

@@ -27,44 +27,42 @@ window.onload = function () {
     if (!game || !game.player) return;
 
     const key = event.key;
-    const possibleKeystrokes = [
-      "ArrowLeft",
-      "ArrowUp",
-      "ArrowRight",
-      "ArrowDown",
-      " ",
-    ];
 
-    if (possibleKeystrokes.includes(key)) {
+    if (
+      ["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown", " "].includes(key)
+    ) {
       event.preventDefault();
-      switch (key) {
-        case "ArrowLeft":
-          game.player.directionX = -4;
-          break;
-        case "ArrowUp":
-          game.player.directionY = -4;
-          break;
-        case "ArrowRight":
-          game.player.directionX = 4;
-          break;
-        case "ArrowDown":
-          game.player.directionY = 4;
-          break;
-        case " ":
-          if (!game.player.isShooting) {
-            const myShipLeft = game.player.left + 5;
-            const myShipTop = game.player.top - 40;
-            game.myLasers.push(
-              new myLaser(game.gameScreen, myShipLeft, myShipTop)
-            );
-            game.player.isShooting = true;
+    }
 
-            setTimeout(() => {
+    switch (key) {
+      case "ArrowLeft":
+        game.player.directionX = -4;
+        break;
+      case "ArrowUp":
+        game.player.directionY = -4;
+        break;
+      case "ArrowRight":
+        game.player.directionX = 4;
+        break;
+      case "ArrowDown":
+        game.player.directionY = 4;
+        break;
+      case " ":
+        if (!game.player.isShooting) {
+          const myShipLeft = game.player.left + 5;
+          const myShipTop = game.player.top - 40;
+          game.myLasers.push(
+            new myLaser(game.gameScreen, myShipLeft, myShipTop, game.player)
+          );
+          game.player.isShooting = true;
+          setTimeout(
+            () => {
               game.player.isShooting = false;
-            }, 400);
-          }
-          break;
-      }
+            },
+            game.player.weaponUpgraded ? 200 : 400
+          );
+        }
+        break;
     }
   }
 
@@ -73,25 +71,20 @@ window.onload = function () {
     if (!game || !game.player) return;
 
     const key = event.key;
-    const possibleKeystrokes = [
-      "ArrowLeft",
-      "ArrowUp",
-      "ArrowRight",
-      "ArrowDown",
-    ];
 
-    if (possibleKeystrokes.includes(key)) {
-      event.preventDefault();
-      switch (key) {
-        case "ArrowLeft":
-        case "ArrowRight":
-          game.player.directionX = 0; // Stop horizontal movement
-          break;
-        case "ArrowUp":
-        case "ArrowDown":
-          game.player.directionY = 0; // Stop vertical movement
-          break;
-      }
+    switch (key) {
+      case "ArrowLeft":
+        if (game.player.directionX < 0) game.player.directionX = 0;
+        break;
+      case "ArrowRight":
+        if (game.player.directionX > 0) game.player.directionX = 0;
+        break;
+      case "ArrowUp":
+        if (game.player.directionY < 0) game.player.directionY = 0;
+        break;
+      case "ArrowDown":
+        if (game.player.directionY > 0) game.player.directionY = 0;
+        break;
     }
   }
 

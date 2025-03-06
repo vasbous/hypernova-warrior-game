@@ -1,16 +1,18 @@
 class myLaser {
-  constructor(gameScreen, myShipLeft, myShipTop) {
+  constructor(gameScreen, myShipLeft, myShipTop, player) {
     this.left = myShipLeft;
     this.top = myShipTop;
-    this.width = 30;
-    this.height = 50;
+    this.width = player.weaponUpgraded ? 60 : 30; // Double size if upgraded
+    this.height = player.weaponUpgraded ? 100 : 50;
     this.sound = new Audio("./assets/myLaser.wav");
     this.sound.preload = "auto";
     this.sound.volume = 0.1;
     this.sound.play();
     this.element = document.createElement("img");
     //added Date Stamp so browser caches every image and gif repeats properly
-    this.element.src = `./images/bolt.gif?t=${Date.now()}`;
+    this.element.src = player.weaponUpgraded
+      ? `./images/bolt2.gif?t=${Date.now()}`
+      : `./images/bolt.gif?t=${Date.now()}`;
 
     this.element.style.position = "absolute";
     this.element.style.width = `${this.width}px`;
@@ -99,5 +101,42 @@ class enemyLaser {
     } else {
       return false;
     }
+  }
+}
+
+class Shield {
+  constructor(player) {
+    this.player = player;
+    this.width = 100;
+    this.height = 100;
+    this.active = true;
+
+    this.element = document.createElement("img");
+    this.element.src = "./images/shield5.gif";
+    this.element.style.position = "absolute";
+    this.element.style.width = `${this.width}px`;
+    this.element.style.height = `${this.height}px`;
+    this.element.style.pointerEvents = "none"; // Prevent interference with game controls
+
+    player.gameScreen.appendChild(this.element);
+    this.updatePosition();
+  }
+
+  updatePosition() {
+    // Center horizontally: player left + (ship width/2) - (shield width/2)
+    const leftPosition =
+      this.player.left + this.player.width / 2 - this.width / 2;
+
+    // Center vertically: player top + (ship height/2) - (shield height/2)
+    const topPosition =
+      this.player.top + this.player.height / 2 - this.height / 2;
+
+    this.element.style.left = `${leftPosition}px`;
+    this.element.style.top = `${topPosition}px`;
+  }
+
+  deactivate() {
+    this.active = false;
+    this.element.remove();
   }
 }
