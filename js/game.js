@@ -10,6 +10,19 @@ class Game {
     this.livesTitle = document.getElementById("lives-title");
     this.playerName = this.nameInputElement.value;
 
+    // Define all soundtracks
+    this.titleScreenMusic = new Audio("./assets/titleScreenMusic.mp3");
+    this.titleScreenMusic.loop = true;
+    this.titleScreenMusic.volume = 0.1;
+
+    this.introMusic = new Audio("./assets/introMusic.mp3");
+    this.introMusic.loop = true;
+    this.introMusic.volume = 0.1;
+
+    this.gameSoundtrack = new Audio("./assets/gameSoundtrack.mp3");
+    this.gameSoundtrack.loop = true;
+    this.gameSoundtrack.volume = 0.1;
+
     this.player = new Player(
       this.gameScreen,
       200,
@@ -34,10 +47,127 @@ class Game {
     // Background scrolling properties
     this.backgroundY = 0;
     this.backgroundSpeed = 2;
+  }
 
-    this.soundtrack = new Audio("./assets/gameSoundtrack.mp3");
-    this.soundtrack.loop = true;
-    this.soundtrack.volume = 0.1;
+  startIntroSequence() {
+    // First ensure title music is stopped properly regardless of whether it's currently playing
+    this.titleScreenMusic.pause();
+    this.titleScreenMusic.currentTime = 0;
+
+    // Start intro music
+    this.introMusic.currentTime = 0;
+    this.introMusic
+      .play()
+      .catch((error) => console.warn("Intro music autoplay blocked:", error));
+
+    // Create intro sequence container
+    const introContainer = document.createElement("div");
+    introContainer.id = "intro-sequence";
+    document.body.appendChild(introContainer);
+
+    // Image paths for the intro sequence
+    const introImages = [
+      "./images/intro1.png",
+      "./images/intro2.png",
+      "./images/intro3.png",
+      "./images/intro4.png",
+      "./images/intro5.png",
+      "./images/intro6.png",
+    ];
+
+    let currentIndex = 0;
+    let isVideoPlaying = false;
+
+    // Create image element
+    const imageElement = document.createElement("img");
+    imageElement.id = "intro-image";
+    imageElement.src = introImages[currentIndex];
+    introContainer.appendChild(imageElement);
+
+    // Create video element
+    const videoElement = document.createElement("video");
+    videoElement.id = "intro-video";
+    videoElement.src = "./assets/intro-video.mp4";
+    videoElement.style.display = "none";
+    introContainer.appendChild(videoElement);
+
+    // Create next button
+    const nextButton = document.createElement("button");
+    nextButton.id = "intro-next-button";
+    nextButton.textContent = "Next";
+    introContainer.appendChild(nextButton);
+
+    // Create skip button
+    const skipButton = document.createElement("button");
+    skipButton.id = "intro-skip-button";
+    skipButton.textContent = "Skip To Game";
+    introContainer.appendChild(skipButton);
+
+    // Function to show next image or video
+    const showNext = () => {
+      if (!isVideoPlaying) {
+        currentIndex++;
+        if (currentIndex < introImages.length) {
+          // Show next image
+          imageElement.src = introImages[currentIndex];
+        } else {
+          // All images shown, start video
+          isVideoPlaying = true;
+          imageElement.style.display = "none";
+          videoElement.style.display = "block";
+          nextButton.textContent = "Kick Alien Butt!";
+          videoElement.play();
+        }
+      } else {
+        // Video is playing and user clicked next, start game
+        endIntroSequence();
+      }
+    };
+
+    // End intro sequence and start game
+    const endIntroSequence = () => {
+      // Ensure intro music is stopped
+      this.introMusic.pause();
+      this.introMusic.currentTime = 0;
+
+      document.body.removeChild(introContainer);
+      this.start();
+    };
+
+    // Event listeners for next and skip buttons
+    nextButton.addEventListener("click", showNext);
+    skipButton.addEventListener("click", endIntroSequence);
+
+    // Listen for video end to update button
+    videoElement.addEventListener("ended", () => {
+      nextButton.textContent = "Start Game";
+    });
+  }
+
+  fadeOutAudio(audio, callback = null) {
+    if (!audio || audio.paused) {
+      if (callback) callback();
+      return;
+    }
+
+    // Store original volume to restore it later if needed
+    const originalVolume = audio.volume;
+
+    // Gradually reduce volume
+    const fadeInterval = setInterval(() => {
+      // Reduce volume by small increment
+      if (audio.volume > 0.05) {
+        audio.volume -= 0.05;
+      } else {
+        // Stop and reset when volume is very low
+        clearInterval(fadeInterval);
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = originalVolume; // Reset volume for future use
+
+        if (callback) callback();
+      }
+    }, 100);
   }
 
   spawnBackgroundPlanet() {
@@ -52,24 +182,26 @@ class Game {
   }
 
   start() {
+    // Start game soundtrack
+    this.gameSoundtrack.currentTime = 0;
+    this.gameSoundtrack
+      .play()
+      .catch((error) =>
+        console.warn("Game soundtrack autoplay blocked:", error)
+      );
+
     // Set the height and width of the game screen
     this.gameScreen.style.height = `${this.height}px`;
     this.gameScreen.style.width = `${this.width}px`;
 
     this.startScreen.style.display = "none";
-
     this.gameScreen.style.display = "block";
 
     this.spawnPowerUps();
     setInterval(() => this.spawnPowerUps(), 5000); // Spawn power-ups every 5 seconds
     this.spawnBackgroundPlanet();
 
-    this.soundtrack.currentTime = 0;
-    this.soundtrack
-      .play()
-      .catch((error) => console.warn("Soundtrack autoplay blocked:", error));
-
-    // Executes the gameLoop on a fequency of 60 times per second and stores the ID of the interval.
+    // Executes the gameLoop on a frequency of 60 times per second and stores the ID of the interval.
     this.gameIntervalId = setInterval(() => {
       this.gameLoop();
     }, this.gameLoopFrequency);
@@ -362,39 +494,69 @@ class Game {
       clearInterval(this.gameIntervalId);
     }
 
-    this.soundtrack.pause();
-    this.soundtrack.currentTime = 0;
+    // Safely fade out and stop game soundtrack
+    if (this.gameSoundtrack) {
+      try {
+        this.fadeOutAudio(this.gameSoundtrack);
+      } catch (error) {
+        console.warn("Error fading game soundtrack:", error);
 
-    // Remove player
+        // Fallback: just pause the audio
+        if (this.gameSoundtrack) {
+          this.gameSoundtrack.pause();
+          this.gameSoundtrack.currentTime = 0;
+        }
+      }
+    }
+
+    // Clear this reference to avoid double-stopping
+    if (this.soundtrack) {
+      this.soundtrack.pause();
+      this.soundtrack.currentTime = 0;
+    }
+
+    // Remove player safely
     if (this.player && this.player.element) {
       this.player.element.remove();
     }
 
-    // Stop and remove all enemies
+    // Stop and remove all enemies safely
     this.enemiesSmall.forEach((enemy) => {
       if (enemy.fireLaserTimeout) clearTimeout(enemy.fireLaserTimeout);
       if (enemy.fireInterval) clearInterval(enemy.fireInterval);
-
-      enemy.element.remove();
+      if (enemy.element) enemy.element.remove();
     });
 
     this.enemiesLarge.forEach((enemy) => {
       if (enemy.fireLaserTimeout) clearTimeout(enemy.fireLaserTimeout);
       if (enemy.fireInterval) clearInterval(enemy.fireInterval);
-
-      enemy.element.remove();
+      if (enemy.element) enemy.element.remove();
     });
 
-    // Stop and remove all player lasers
-    this.myLasers.forEach((laser) => laser.element.remove());
+    // Clean up all other game objects
+    this.myLasers.forEach((laser) => {
+      if (laser.element) laser.element.remove();
+    });
 
-    // Stop and remove all enemy lasers and stop sounds
     this.enemyLasers.forEach((laser) => {
-      laser.element.remove();
+      if (laser.element) laser.element.remove();
       if (laser.sound) {
         laser.sound.pause();
         laser.sound.currentTime = 0;
       }
+    });
+
+    // Clean up power-ups
+    this.shieldPowerUps.forEach((powerUp) => {
+      if (powerUp.element) powerUp.element.remove();
+    });
+
+    this.weaponPowerUps.forEach((powerUp) => {
+      if (powerUp.element) powerUp.element.remove();
+    });
+
+    this.backgroundPlanets.forEach((planet) => {
+      if (planet.element) planet.element.remove();
     });
 
     // Clear arrays
@@ -402,41 +564,65 @@ class Game {
     this.enemiesLarge = [];
     this.myLasers = [];
     this.enemyLasers = [];
+    this.shieldPowerUps = [];
+    this.weaponPowerUps = [];
+    this.backgroundPlanets = [];
 
     // Hide lives container on game over
-    this.livesContainer.style.display = "none";
+    if (this.livesContainer) {
+      this.livesContainer.style.display = "none";
+    }
 
     // Hide game screen and show end screen
-    this.gameScreen.style.display = "none";
-    this.gameEndScreen.style.display = "block";
+    if (this.gameScreen) {
+      this.gameScreen.style.display = "none";
+    }
+
+    if (this.gameEndScreen) {
+      this.gameEndScreen.style.display = "block";
+    }
 
     const gameOverVideo = document.getElementById("game-over-video");
+    if (gameOverVideo) {
+      // Play the video only when the screen is displayed
+      gameOverVideo.currentTime = 0; // Reset to the start
+      gameOverVideo
+        .play()
+        .catch((error) =>
+          console.warn("Game over video autoplay blocked:", error)
+        );
+    }
 
-    // Play the video only when the screen is displayed
-    gameOverVideo.currentTime = 0; // Reset to the start
-    gameOverVideo.play();
+    // Handle high scores
+    try {
+      // Get existing scores or create new array
+      const scoresInStorage =
+        JSON.parse(localStorage.getItem("high-scores")) || [];
 
-    //this is with objects and names
-    const scoresInStorage = JSON.parse(localStorage.getItem("high-scores"));
-    if (scoresInStorage) {
+      // Add current score
       scoresInStorage.push({ name: this.playerName, score: this.score });
+
+      // Sort and keep top 3
       const topThreeScores = scoresInStorage
         .sort((a, b) => b.score - a.score)
         .slice(0, 3);
+
+      // Save back to storage
       localStorage.setItem("high-scores", JSON.stringify(topThreeScores));
-    } else {
-      localStorage.setItem(
-        "high-scores",
-        JSON.stringify([{ name: this.playerName, score: this.score }])
-      );
+
+      // Clear existing scores display
+      if (this.highScoresListElement) {
+        this.highScoresListElement.innerHTML = "";
+
+        // Display scores
+        topThreeScores.forEach((oneScoreObject) => {
+          const ourLiElement = document.createElement("li");
+          ourLiElement.innerText = `${oneScoreObject.name} ${oneScoreObject.score}`;
+          this.highScoresListElement.appendChild(ourLiElement);
+        });
+      }
+    } catch (error) {
+      console.warn("Error handling high scores:", error);
     }
-    const updatedScoresInStorage = JSON.parse(
-      localStorage.getItem("high-scores")
-    );
-    updatedScoresInStorage.forEach((oneScoreObject) => {
-      const ourLiElement = document.createElement("li");
-      ourLiElement.innerText = `${oneScoreObject.name} ${oneScoreObject.score}`;
-      this.highScoresListElement.appendChild(ourLiElement);
-    });
   }
 }

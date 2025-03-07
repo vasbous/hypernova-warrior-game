@@ -3,26 +3,54 @@ window.onload = function () {
   const restartButton = document.getElementById("restart-button");
   let game;
 
-  const gameSoundTrack = document.getElementById("game-soundtrack");
+  // Initialize the game to have access to the audio files
+  game = new Game();
+
+  // Flag to track if we've attempted to play music
+  let musicInitialized = false;
+
+  // Function to start title music after user interaction
+  function initializeMusic() {
+    if (!musicInitialized) {
+      game.titleScreenMusic
+        .play()
+        .catch((error) => console.warn("Title music playback issue:", error));
+      musicInitialized = true;
+    }
+  }
+
+  // Listen for any user interaction to start music
+  document.addEventListener("click", initializeMusic, { once: true });
+  document.addEventListener("keydown", initializeMusic, { once: true });
 
   startButton.addEventListener("click", function () {
-    startGame();
+    // First make sure music is properly initialized if it hasn't been yet
+    if (!musicInitialized) {
+      // Try to play title music just to initialize audio context
+      game.titleScreenMusic
+        .play()
+        .catch((error) => console.warn("Title music init error:", error))
+        .finally(() => {
+          // Mark as initialized even if it failed
+          musicInitialized = true;
+
+          // Then immediately start intro sequence which will handle the audio properly
+          game.startIntroSequence();
+        });
+    } else {
+      // Music was already initialized, just start intro sequence
+      game.startIntroSequence();
+    }
   });
 
   restartButton.addEventListener("click", function () {
     restartGame();
   });
 
-  function startGame() {
-    game = new Game();
-    game.start();
-  }
-
   function restartGame() {
     location.reload();
   }
 
-  // To handle movement with Arrow keys
   function handleKeydown(event) {
     if (!game || !game.player) return;
 
@@ -66,7 +94,6 @@ window.onload = function () {
     }
   }
 
-  // To stop moving
   function handleKeyup(event) {
     if (!game || !game.player) return;
 
