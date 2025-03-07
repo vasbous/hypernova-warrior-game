@@ -1,6 +1,7 @@
 body {
   padding: 0;
   text-align: center;
+  background-color: black; /* Add black background to body */
 }
 
 #game-intro {
@@ -103,33 +104,9 @@ body {
   display: none;
 }
 
-#game-screen {
-  display: none;
-  align-content: center;
-  padding: 0;
-  overflow: hidden;
-  position: relative;
-  background-image: url(../images/my-background.png);
-  background-size: cover;
-  background-repeat: repeat-y;
-  background-position: 0 0;
-  z-index: -2;
-}
-
-@keyframes slide {
-  0% {
-    background-position: 0 -1000px;
-  }
-  95% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 0 50px;
-  }
-}
-
 #game-end {
   display: none;
+  color: white; /* Set default text color for the container */
 }
 
 .game-intro p {
@@ -158,4 +135,100 @@ body button {
 
 #game-over-video {
   height: 540px;
+}
+
+#game-intro p {
+  font-size: 36px; /* Double the size from your original 18px */
+  color: white;
+  font-family: "Verdana";
+}
+
+#game-intro label {
+  font-size: 36px; /* Double size for the label text */
+  color: white;
+}
+
+/* Make sure the input field remains a reasonable size */
+#name-input {
+  font-size: 30px;
+  padding: 8px;
+  margin-left: 10px;
+}
+
+/* Make game screen text white and larger */
+#game-container p,
+#game-container span,
+#lives-container {
+  font-size: 36px; /* Double the size to match intro screen */
+  color: white;
+  font-family: "Verdana";
+}
+
+/* Make sure the score display is properly styled */
+#score {
+  font-size: 36px;
+  color: white;
+}
+
+/* Style for lives text */
+#lives-title {
+  font-size: 36px;
+  color: white;
+  margin-right: 10px;
+}
+
+#game-screen {
+  display: none;
+  align-content: center;
+  margin: 0 auto; /* Center the game screen */
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  background-color: black; /* Black background */
+  background-image: url(../images/my-background.png);
+  background-size: cover;
+  background-repeat: repeat-y;
+  background-position: 0 0;
+  z-index: 0; /* Changed from -2 to 0 */
+}
+
+/* Fix game container layout to prevent shifting */
+#game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100vw;
+  padding: 20px 0px;
+}
+
+/* Stats container to hold score and lives */
+#game-container > div:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+  position: relative; /* Make position relative */
+}
+
+/* Fixed width for the lives container */
+#lives-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  width: 300px; /* Fixed width */
+  margin: 0 auto; /* Center it */
+}
+
+/* Ensure score display has consistent height */
+#score {
+  display: inline-block;
+  min-width: 50px; /* Ensure score area doesn't collapse */
+  text-align: left;
+}
+
+#high-scores {
+  font-size: 24px; /* Double the original size (if it was 36px) */
+  color: white; /* Ensure the text is visible */
 }
