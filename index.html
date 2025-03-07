@@ -21,17 +21,35 @@
         <button id="start-button">Start Game</button>
         <p>Use the left and right arrow to control the car!</p>
         <img src="./images/arrows.png" alt="" class="arrows-img" />
+        <label>
+          Enter your Initials:
+          <input id="name-input" type="text" maxlength="3" />
+        </label>
       </div>
 
       <div id="game-container">
+        <div>
+          <p>Score: <span id="score">0</span></p>
+          <div id="lives-container">
+            <!-- The lives will be dynamically added here -->
+          </div>
+        </div>
         <!-- #game-screen is initially hidden using CSS style display: none -->
         <div id="game-screen"></div>
       </div>
 
       <!-- #game-end is initially hidden using CSS style display: none -->
       <div id="game-end">
-        <img src="./images/temp-logo.png" alt="" class="logo-img" />
+        <video id="game-over-video">
+          <source
+            src="./assets/game-over-video-optimized.mp4"
+            type="video/mp4"
+          />
+          Your browser does not support the video tag.
+        </video>
         <h1>Game Over</h1>
+        <h3>High Scores</h3>
+        <ol id="high-scores"></ol>
         <br />
         <button id="restart-button">Restart</button>
       </div>

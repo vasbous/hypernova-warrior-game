@@ -3,6 +3,13 @@ class Game {
     this.startScreen = document.getElementById("game-intro");
     this.gameScreen = document.getElementById("game-screen");
     this.gameEndScreen = document.getElementById("game-end");
+    this.scoreElement = document.getElementById("score");
+    this.highScoresListElement = document.getElementById("high-scores");
+    this.nameInputElement = document.getElementById("name-input");
+    this.livesContainer = document.getElementById("lives-container");
+    this.livesTitle = document.getElementById("lives-title");
+    this.playerName = this.nameInputElement.value;
+
     this.player = new Player(
       this.gameScreen,
       200,
@@ -70,9 +77,28 @@ class Game {
 
   gameLoop() {
     this.update();
+    this.updateStats();
 
     if (this.gameIsOver) {
       clearInterval(this.gameIntervalId);
+    }
+  }
+
+  updateStats() {
+    // Update score in the HTML
+    this.scoreElement.textContent = this.score;
+
+    // Clear the current lives container
+    this.livesContainer.innerHTML = "Lives: ";
+
+    // Show the remaining lives as ship images
+    for (let i = 0; i < this.player.lives; i++) {
+      const shipIcon = document.createElement("img");
+      shipIcon.src = "./images/shipLife.gif"; // Your ship icon path
+      shipIcon.alt = "Ship icon";
+      shipIcon.style.width = "30px"; // You can adjust the size of the ship icons as you like
+      shipIcon.style.marginRight = "5px"; // Space between ships
+      this.livesContainer.appendChild(shipIcon);
     }
   }
 
@@ -377,8 +403,40 @@ class Game {
     this.myLasers = [];
     this.enemyLasers = [];
 
+    // Hide lives container on game over
+    this.livesContainer.style.display = "none";
+
     // Hide game screen and show end screen
     this.gameScreen.style.display = "none";
     this.gameEndScreen.style.display = "block";
+
+    const gameOverVideo = document.getElementById("game-over-video");
+
+    // Play the video only when the screen is displayed
+    gameOverVideo.currentTime = 0; // Reset to the start
+    gameOverVideo.play();
+
+    //this is with objects and names
+    const scoresInStorage = JSON.parse(localStorage.getItem("high-scores"));
+    if (scoresInStorage) {
+      scoresInStorage.push({ name: this.playerName, score: this.score });
+      const topThreeScores = scoresInStorage
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3);
+      localStorage.setItem("high-scores", JSON.stringify(topThreeScores));
+    } else {
+      localStorage.setItem(
+        "high-scores",
+        JSON.stringify([{ name: this.playerName, score: this.score }])
+      );
+    }
+    const updatedScoresInStorage = JSON.parse(
+      localStorage.getItem("high-scores")
+    );
+    updatedScoresInStorage.forEach((oneScoreObject) => {
+      const ourLiElement = document.createElement("li");
+      ourLiElement.innerText = `${oneScoreObject.name} ${oneScoreObject.score}`;
+      this.highScoresListElement.appendChild(ourLiElement);
+    });
   }
 }

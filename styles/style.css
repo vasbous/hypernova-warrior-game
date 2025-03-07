@@ -39,7 +39,29 @@ body {
   display: flex;
   width: 100vw;
   padding: 20px 0px;
-  justify-content: center;
+  justify-content: center; /* Creates space between stats and game screen */
+}
+
+#game-stats {
+  text-align: left;
+  color: white;
+  margin-right: 20px; /* Adds space between the stats and the game screen */
+}
+
+#lives-container {
+  display: flex;
+  gap: 10px; /* Adds space between each life image */
+  margin-top: 10px; /* Adds space between score and lives */
+}
+
+.life-gif {
+  width: 60px; /* Adjust the size of the ship GIF */
+  height: auto;
+}
+
+/* Hide the lives container on game over */
+#game-end #lives-container {
+  display: none;
 }
 
 #game-screen {
@@ -93,4 +115,8 @@ body button {
   box-shadow: 0;
   border-radius: 5px;
   margin-bottom: 20px;
+}
+
+#game-over-video {
+  height: 540px;
 }
