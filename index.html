@@ -32,7 +32,7 @@
 
       <div id="game-container">
         <div>
-          <p>Score: <span id="score">0</span></p>
+          <p id="score">Score: 0</p>
           <div id="lives-container">
             <!-- The lives will be dynamically added here -->
           </div>
@@ -43,17 +43,42 @@
 
       <!-- #game-end is initially hidden using CSS style display: none -->
       <div id="game-end">
-        <video id="game-over-video">
-          <source
-            src="./assets/game-over-video-optimized.mp4"
-            type="video/mp4"
-          />
+        <h1>Game Over</h1>
+        <video autoplay muted loop id="background-video">
+          <source src="./assets/start-background.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <h1>Game Over</h1>
-        <h3>High Scores</h3>
-        <ol id="high-scores"></ol>
-        <br />
+        <div class="game-end-content">
+          <video id="game-over-video">
+            <source
+              src="./assets/game-over-video-optimized.mp4"
+              type="video/mp4"
+            />
+            Your browser does not support the video tag.
+          </video>
+
+          <div id="score-container">
+            <div id="current-score">
+              Your score: <span id="final-score">0</span>
+            </div>
+
+            <div id="high-scores-container">
+              <h3>High Scores</h3>
+              <table id="high-scores-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody id="high-scores">
+                  <!-- High scores will be inserted here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <button id="restart-button">Restart</button>
       </div>
     </main>

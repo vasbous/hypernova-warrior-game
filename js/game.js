@@ -8,7 +8,7 @@ class Game {
     this.nameInputElement = document.getElementById("name-input");
     this.livesContainer = document.getElementById("lives-container");
     this.livesTitle = document.getElementById("lives-title");
-    this.playerName = this.nameInputElement.value;
+    this.playerName = this.nameInputElement.value || "???";
 
     // Define all soundtracks
     this.titleScreenMusic = new Audio("./assets/titleScreenMusic.mp3");
@@ -47,6 +47,7 @@ class Game {
     // Background scrolling properties
     this.backgroundY = 0;
     this.backgroundSpeed = 2;
+    this.scoreElement.style.display = "none";
   }
 
   startIntroSequence() {
@@ -140,7 +141,7 @@ class Game {
 
     // Listen for video end to update button
     videoElement.addEventListener("ended", () => {
-      nextButton.textContent = "Start Game";
+      nextButton.textContent = "Kick Alien Butt!";
     });
   }
 
@@ -182,13 +183,7 @@ class Game {
   }
 
   start() {
-    // Start game soundtrack
-    this.gameSoundtrack.currentTime = 0;
-    this.gameSoundtrack
-      .play()
-      .catch((error) =>
-        console.warn("Game soundtrack autoplay blocked:", error)
-      );
+    this.scoreElement.style.display = "block";
 
     // Set the height and width of the game screen
     this.gameScreen.style.height = `${this.height}px`;
@@ -196,12 +191,12 @@ class Game {
 
     this.startScreen.style.display = "none";
     this.gameScreen.style.display = "block";
+    this.livesContainer.style.display = "flex";
 
     this.spawnPowerUps();
-    setInterval(() => this.spawnPowerUps(), 5000); // Spawn power-ups every 5 seconds
+    setInterval(() => this.spawnPowerUps(), 5000);
     this.spawnBackgroundPlanet();
 
-    // Executes the gameLoop on a frequency of 60 times per second and stores the ID of the interval.
     this.gameIntervalId = setInterval(() => {
       this.gameLoop();
     }, this.gameLoopFrequency);
@@ -218,7 +213,7 @@ class Game {
 
   updateStats() {
     // Update score in the HTML
-    this.scoreElement.textContent = this.score;
+    this.scoreElement.innerText = `Score: ${this.score}`;
 
     // Clear the current lives container
     this.livesContainer.innerHTML = "Lives: ";
@@ -573,6 +568,10 @@ class Game {
       this.livesContainer.style.display = "none";
     }
 
+    // Hide score element
+    if (this.scoreElement) {
+      this.scoreElement.style.display = "none";
+    }
     // Hide game screen and show end screen
     if (this.gameScreen) {
       this.gameScreen.style.display = "none";
@@ -593,6 +592,9 @@ class Game {
         );
     }
 
+    // Update the final score display
+    document.getElementById("final-score").textContent = this.score;
+
     // Handle high scores
     try {
       // Get existing scores or create new array
@@ -600,25 +602,41 @@ class Game {
         JSON.parse(localStorage.getItem("high-scores")) || [];
 
       // Add current score
-      scoresInStorage.push({ name: this.playerName, score: this.score });
+      scoresInStorage.push({
+        name: this.playerName || "???",
+        score: this.score,
+      });
 
-      // Sort and keep top 3
-      const topThreeScores = scoresInStorage
+      // Sort and keep top 10
+      const topTenScores = scoresInStorage
         .sort((a, b) => b.score - a.score)
-        .slice(0, 3);
+        .slice(0, 10);
 
       // Save back to storage
-      localStorage.setItem("high-scores", JSON.stringify(topThreeScores));
+      localStorage.setItem("high-scores", JSON.stringify(topTenScores));
 
       // Clear existing scores display
       if (this.highScoresListElement) {
         this.highScoresListElement.innerHTML = "";
 
-        // Display scores
-        topThreeScores.forEach((oneScoreObject) => {
-          const ourLiElement = document.createElement("li");
-          ourLiElement.innerText = `${oneScoreObject.name} ${oneScoreObject.score}`;
-          this.highScoresListElement.appendChild(ourLiElement);
+        // Display scores in table format
+        topTenScores.forEach((scoreObject) => {
+          const row = document.createElement("tr");
+
+          // Name cell
+          const nameCell = document.createElement("td");
+          nameCell.textContent = scoreObject.name;
+
+          // Score cell
+          const scoreCell = document.createElement("td");
+          scoreCell.textContent = scoreObject.score;
+
+          // Add cells to row
+          row.appendChild(nameCell);
+          row.appendChild(scoreCell);
+
+          // Add row to table
+          this.highScoresListElement.appendChild(row);
         });
       }
     } catch (error) {

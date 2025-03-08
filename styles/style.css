@@ -89,7 +89,7 @@ body {
 }
 
 #lives-container {
-  display: flex;
+  display: none;
   gap: 10px; /* Adds space between each life image */
   margin-top: 10px; /* Adds space between score and lives */
 }
@@ -102,11 +102,6 @@ body {
 /* Hide the lives container on game over */
 #game-end #lives-container {
   display: none;
-}
-
-#game-end {
-  display: none;
-  color: white; /* Set default text color for the container */
 }
 
 .game-intro p {
@@ -133,10 +128,6 @@ body button {
   margin-bottom: 20px;
 }
 
-#game-over-video {
-  height: 540px;
-}
-
 #game-intro p {
   font-size: 36px; /* Double the size from your original 18px */
   color: white;
@@ -146,6 +137,10 @@ body button {
 #game-intro label {
   font-size: 36px; /* Double size for the label text */
   color: white;
+}
+
+#game-intro #score {
+  display: none;
 }
 
 /* Make sure the input field remains a reasonable size */
@@ -228,7 +223,105 @@ body button {
   text-align: left;
 }
 
-#high-scores {
-  font-size: 24px; /* Double the original size (if it was 36px) */
-  color: white; /* Ensure the text is visible */
+/* Game end screen layout */
+#game-end {
+  display: none;
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Position the Game Over heading at the top */
+#game-end h1 {
+  width: 100%;
+  font-size: 48px;
+  margin: 30px 0;
+  text-align: center;
+}
+
+/* Game over content container */
+.game-end-content {
+  position: relative;
+  width: 100%;
+  height: 70vh; /* Fixed height to ensure proper positioning */
+  margin: 0 auto;
+}
+
+/* Center the video */
+#game-over-video {
+  position: absolute;
+  width: 40%; /* Reduced from 50% to 40% (10% smaller) */
+  max-height: 60vh;
+  left: 30%; /* Adjusted to 30% to maintain center position (since width is now 40%) */
+  top: 0;
+  object-fit: contain;
+}
+
+/* Position score container on the right */
+#score-container {
+  position: absolute;
+  width: 20%; /* Reduced from 25% to 20% (20% narrower) */
+  right: 5%; /* Keep position near the right edge */
+  top: 0;
+  text-align: left;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+#current-score {
+  font-size: 44px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Restart button below the content */
+#restart-button {
+  margin-top: 20px;
+  z-index: 10;
+  clear: both;
+}
+
+#high-scores-container h3 {
+  font-size: 48px;
+  text-align: center;
+}
+
+/* High scores table styling refined */
+#high-scores-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  border-color: white;
+}
+
+#high-scores-table th {
+  text-align: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgb(255, 255, 255);
+  font-size: 28px;
+}
+
+#high-scores-table td {
+  text-align: center;
+  padding: 6px 10px;
+  font-size: 24px;
+}
+
+/* Make the score value stand out */
+#final-score {
+  font-weight: bold;
+  color: #ffcc00;
+  font-size: 42px;
+}
+
+/* Make sure the lives container and score at the top are hidden when game ends */
+#game-end ~ #game-container #score,
+#game-end ~ #game-container #lives-container {
+  display: none;
 }

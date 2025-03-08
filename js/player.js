@@ -16,14 +16,14 @@ class Player {
 
     // Preload image groups for ship animation
     this.imageSet1 = [
-      "images/ship1.png",
-      "images/ship2.png",
-      "images/ship3.png",
+      "./images/ship1.png",
+      "./images/ship2.png",
+      "./images/ship3.png",
     ];
     this.imageSet2 = [
-      "images/ship4.png",
-      "images/ship5.png",
-      "images/ship6.png",
+      "./images/ship4.png",
+      "./images/ship5.png",
+      "./images/ship6.png",
     ];
 
     this.images = [this.imageSet1, this.imageSet2];

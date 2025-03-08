@@ -2,6 +2,7 @@ window.onload = function () {
   const startButton = document.getElementById("start-button");
   const restartButton = document.getElementById("restart-button");
   let game;
+  let gameActive = false; // To keep track if game is in active state
 
   // Initialize the game to have access to the audio files
   game = new Game();
@@ -16,12 +17,17 @@ window.onload = function () {
         .play()
         .catch((error) => console.warn("Title music playback issue:", error));
       musicInitialized = true;
+
+      document.removeEventListener("click", initializeMusic);
+      document.removeEventListener("keydown", initializeMusic);
+      document.removeEventListener("mousemove", initializeMusic);
     }
   }
 
   // Listen for any user interaction to start music
   document.addEventListener("click", initializeMusic, { once: true });
   document.addEventListener("keydown", initializeMusic, { once: true });
+  document.addEventListener("mousemove", initializeMusic, { once: true });
 
   startButton.addEventListener("click", function () {
     // First make sure music is properly initialized if it hasn't been yet
@@ -43,6 +49,20 @@ window.onload = function () {
     }
   });
 
+  // Set gameActive to true when the actual game starts
+  const originalStart = game.start;
+  game.start = function () {
+    gameActive = true;
+    originalStart.call(game);
+  };
+
+  // Set gameActive to false when the game ends
+  const originalEndGame = game.endGame;
+  game.endGame = function () {
+    gameActive = false;
+    originalEndGame.call(game);
+  };
+
   restartButton.addEventListener("click", function () {
     restartGame();
   });
@@ -52,7 +72,7 @@ window.onload = function () {
   }
 
   function handleKeydown(event) {
-    if (!game || !game.player) return;
+    if (!gameActive || !game || !game.player) return;
 
     const key = event.key;
 
@@ -95,7 +115,7 @@ window.onload = function () {
   }
 
   function handleKeyup(event) {
-    if (!game || !game.player) return;
+    if (!gameActive || !game || !game.player) return;
 
     const key = event.key;
 
