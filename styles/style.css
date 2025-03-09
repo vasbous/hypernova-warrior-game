@@ -215,9 +215,9 @@ body button:hover {
   z-index: 1001;
   /* Increase width by 50% */
   width: 90%; /* Start with the original 80% and add 10% */
-  max-width: 900px; /* Increase max-width */
+  max-width: 800px; /* Increase max-width */
   /* Increase height by 10% */
-  height: 860px; /* Add a fixed height */
+  height: 760px; /* Add a fixed height */
   color: white;
 }
 
