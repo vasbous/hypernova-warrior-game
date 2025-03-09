@@ -13,6 +13,7 @@ class Player {
     this.weaponUpgraded = false;
     this.hasShield = false;
     this.shield = null;
+    this.laserSound = new Audio("./assets/myLaser.wav");
 
     // Preload image groups for ship animation
     this.imageSet1 = [

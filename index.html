@@ -23,8 +23,75 @@
           Your browser does not support the video tag.
         </video>
         <br />
-        <button id="start-button">Start Game</button>
+        <div class="intro-buttons">
+          <button id="how-to-play-button">How to Play</button>
+          <button id="start-button">Start Game</button>
+          <button id="options-button">Options</button>
+        </div>
       </div>
+
+      <div id="how-to-play-popup" class="popup">
+        <div class="popup-content">
+          <span class="close-button" id="close-how-to-play">&times;</span>
+          <h2>How to Play --Under Construction--</h2>
+          <span>Use the arrow keys to move your ship.</span>
+          <img src="./images/ship-move.gif" alt="" class="instructions-img" />
+          <br />
+          <span>Press space to fire your lasers.</span>
+          <img src="./images/ship-shoot.gif" alt="" class="instructions-img" />
+          <br />
+          <span> Esc key pauses the game.</span><br />
+          <span>Large ships need two hits to be destroyed.</span>
+          <span>Collect power-ups to gain shields or upgrade your weapon.</span
+          ><br />
+          <span> Destroy enemy ships and avoid their lasers.</span>
+        </div>
+      </div>
+
+      <div id="options-popup" class="popup">
+        <div class="popup-content">
+          <span class="close-button" id="close-options">&times;</span>
+          <h2>Options</h2>
+
+          <div class="volume-control">
+            <label for="music-volume-slider">Music Volume:</label>
+            <div class="slider-container">
+              <input
+                type="range"
+                id="music-volume-slider"
+                min="0"
+                max="1"
+                step="0.1"
+                value="0.1"
+              />
+              <div class="slider-labels">
+                <span>0</span>
+                <span>10</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="volume-control">
+            <label for="effects-volume-slider">Effects Volume:</label>
+            <div class="slider-container">
+              <input
+                type="range"
+                id="effects-volume-slider"
+                min="0"
+                max="1"
+                step="0.1"
+                value="0.1"
+              />
+              <div class="slider-labels">
+                <span>0</span>
+                <span>10</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="popup-background" class="popup-background"></div>
 
       <div id="game-container">
         <video autoplay muted loop id="game-background-video">
@@ -32,7 +99,7 @@
           Your browser does not support the video tag.
         </video>
         <div class="game-stats">
-          <p id="score">Score: 0</p>
+          <p id="score">Score: <span id="score-value">0</span></p>
           <div id="lives-container">Lives:</div>
         </div>
         <!-- #game-screen is initially hidden using CSS style display: none -->

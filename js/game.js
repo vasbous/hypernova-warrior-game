@@ -8,18 +8,25 @@ class Game {
     this.livesContainer = document.getElementById("lives-container");
     this.livesTitle = document.getElementById("lives-title");
 
-    // Define all soundtracks
-    this.titleScreenMusic = new Audio("./assets/titleScreenMusic.mp3");
-    this.titleScreenMusic.loop = true;
-    this.titleScreenMusic.volume = 0.1;
+    // Define all soundtracks with error handling
+    try {
+      this.titleScreenMusic = new Audio("./assets/titleScreenMusic.mp3");
+      this.titleScreenMusic.loop = true;
+      this.titleScreenMusic.volume = 0.1;
 
-    this.introMusic = new Audio("./assets/introMusic.mp3");
-    this.introMusic.loop = true;
-    this.introMusic.volume = 0.1;
+      this.introMusic = new Audio("./assets/introMusic.mp3");
+      this.introMusic.loop = true;
+      this.introMusic.volume = 0.1;
 
-    this.gameSoundtrack = new Audio("./assets/gameSoundtrack.mp3");
-    this.gameSoundtrack.loop = true;
-    this.gameSoundtrack.volume = 0.1;
+      this.gameSoundtrack = new Audio("./assets/gameSoundtrack.mp3");
+      this.gameSoundtrack.loop = true;
+      this.gameSoundtrack.volume = 0.1;
+
+      // Add this line to share explosion sound with volume controls
+      this.explosionSound = null; // Will be set when explosion is created
+    } catch (error) {
+      console.error("Error initializing audio:", error);
+    }
 
     this.player = new Player(
       this.gameScreen,
@@ -212,7 +219,7 @@ class Game {
       // Show pause menu
       this.pauseMenu.style.display = "block";
 
-      // Pause game soundtrack
+      // Pause game soundtrack - add a check if it exists and is playing
       if (this.gameSoundtrack && !this.gameSoundtrack.paused) {
         this.gameSoundtrack.pause();
       }
@@ -252,7 +259,7 @@ class Game {
       // Hide pause menu
       this.pauseMenu.style.display = "none";
 
-      // Resume game soundtrack
+      // Resume game soundtrack - add a check if it exists
       if (this.gameSoundtrack && this.gameSoundtrack.paused) {
         this.gameSoundtrack
           .play()

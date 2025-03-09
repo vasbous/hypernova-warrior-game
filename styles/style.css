@@ -10,11 +10,14 @@ body {
 }
 
 #game-intro {
-  padding: 20px 0px;
+  padding: 5px 0px;
   position: relative;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center children horizontally */
 }
 
 #background-video {
@@ -96,11 +99,14 @@ body {
 
 #score {
   font-size: 36px;
-  color: white;
+  color: aqua;
   margin-bottom: 10px;
   white-space: nowrap;
   font-weight: bold;
-  color: #ffcc00;
+}
+
+#score-value {
+  color: #ffcc00; /* Gold color for the score */
 }
 
 /* Add spacing between Lives text and first icon */
@@ -111,7 +117,7 @@ body {
   position: relative; /* Add this line */
   z-index: 2;
   left: -100px; /* Adjust this value as needed */
-  color: #ffcc00;
+  color: aqua;
   font-size: 36px;
   margin-top: 10px;
   white-space: nowrap;
@@ -131,12 +137,12 @@ body {
 }
 
 .title-img {
-  width: 640px;
+  width: 560px;
   margin: 15px 0;
 }
 
 .logo-vid {
-  width: 640px;
+  width: 560px;
   margin-bottom: 10px;
 }
 
@@ -146,11 +152,15 @@ body {
   border-radius: 10px; /* Optional: rounded corners */
 }
 
+.instructions-img {
+  height: 240px;
+}
+
 body button {
-  font-size: 30px;
+  font-size: 24px;
   background-color: rgb(82, 0, 82);
   color: gold;
-  padding: 20px 40px;
+  padding: 15px 30px;
   border: 2px solid white;
   border-radius: 5px;
   margin-bottom: 20px;
@@ -177,11 +187,142 @@ body button:hover {
   display: none;
 }
 
-/* Make sure the input field remains a reasonable size */
-#name-input {
+/* Updated intro buttons styling to ensure proper centering */
+.intro-buttons {
+  display: flex;
+  justify-content: center; /* Centers the buttons horizontally */
+  gap: 20px; /* Space between buttons */
+  margin: 0 auto; /* Centers the entire container */
+  width: 100%; /* Ensures the container takes full width */
+}
+
+.intro-buttons button {
+  width: 200px; /* Fixed width for all buttons */
+  flex-shrink: 0; /* Prevents buttons from shrinking */
+}
+
+/* Basic popup styling */
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #111;
+  padding: 20px;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  /* Increase width by 50% */
+  width: 90%; /* Start with the original 80% and add 10% */
+  max-width: 900px; /* Increase max-width */
+  /* Increase height by 10% */
+  height: 860px; /* Add a fixed height */
+  color: white;
+}
+
+.popup-content {
+  position: relative;
+}
+
+.popup h2 {
+  margin-top: 0;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   font-size: 30px;
-  padding: 8px;
-  margin-left: 10px;
+  color: gold;
+  border: 2px solid gold;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* Darkened background */
+.popup-background {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+}
+
+/* Modify the popup styling for Options */
+#options-popup {
+  width: 500px; /* Smaller width than the default popup */
+  height: auto; /* Remove fixed height to allow content to determine height */
+  max-height: 400px; /* Maximum height */
+  padding: 30px;
+}
+
+/* Style for volume control container */
+.volume-control {
+  margin: 30px 0;
+  text-align: left;
+}
+
+.volume-control label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 24px;
+  color: aqua;
+}
+
+/* Custom styling for the slider track */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: linear-gradient(to right, #4d0099, #9900cc);
+  outline: none;
+  margin: 15px 0 30px 0;
+  position: relative;
+}
+
+/* Custom styling for the slider thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: gold;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: gold;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Volume scale indicators */
+.slider-container {
+  position: relative;
+  margin: 20px 0;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.slider-labels span {
+  color: white;
+  font-size: 18px;
 }
 
 #game-screen {
