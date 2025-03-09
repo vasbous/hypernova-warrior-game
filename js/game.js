@@ -5,10 +5,8 @@ class Game {
     this.gameEndScreen = document.getElementById("game-end");
     this.scoreElement = document.getElementById("score");
     this.highScoresListElement = document.getElementById("high-scores");
-    this.nameInputElement = document.getElementById("name-input");
     this.livesContainer = document.getElementById("lives-container");
     this.livesTitle = document.getElementById("lives-title");
-    this.playerName = this.nameInputElement.value || "???";
 
     // Define all soundtracks
     this.titleScreenMusic = new Audio("./assets/titleScreenMusic.mp3");
@@ -48,6 +46,10 @@ class Game {
     this.backgroundY = 0;
     this.backgroundSpeed = 2;
     this.scoreElement.style.display = "none";
+    this.isPaused = false;
+    this.pauseMenu = document.getElementById("pause-menu");
+    this.powerUpTimeout = null;
+    this.planetTimeout = null;
   }
 
   startIntroSequence() {
@@ -131,7 +133,16 @@ class Game {
       this.introMusic.pause();
       this.introMusic.currentTime = 0;
 
+      // Remove the intro container before starting the game
       document.body.removeChild(introContainer);
+
+      // Start the game soundtrack
+      this.gameSoundtrack.currentTime = 0;
+      this.gameSoundtrack
+        .play()
+        .catch((error) => console.warn("Game soundtrack error:", error));
+
+      // Start the game
       this.start();
     };
 
@@ -171,15 +182,96 @@ class Game {
     }, 100);
   }
 
+  togglePause() {
+    this.isPaused = !this.isPaused;
+
+    if (this.isPaused) {
+      // Pause the game
+      clearInterval(this.gameIntervalId);
+
+      // Clear all enemy firing intervals and timeouts
+      this.enemiesSmall.forEach((enemy) => {
+        if (enemy.fireLaserTimeout) clearTimeout(enemy.fireLaserTimeout);
+        if (enemy.fireInterval) clearInterval(enemy.fireInterval);
+      });
+
+      this.enemiesLarge.forEach((enemy) => {
+        if (enemy.fireLaserTimeout) clearTimeout(enemy.fireLaserTimeout);
+        if (enemy.fireInterval) clearInterval(enemy.fireInterval);
+      });
+
+      // Store the current powerUp and planet timeouts if they exist
+      if (this.powerUpTimeout) {
+        clearTimeout(this.powerUpTimeout);
+      }
+
+      if (this.planetTimeout) {
+        clearTimeout(this.planetTimeout);
+      }
+
+      // Show pause menu
+      this.pauseMenu.style.display = "block";
+
+      // Pause game soundtrack
+      if (this.gameSoundtrack && !this.gameSoundtrack.paused) {
+        this.gameSoundtrack.pause();
+      }
+    } else {
+      // Resume the game
+      this.gameIntervalId = setInterval(() => {
+        this.gameLoop();
+      }, this.gameLoopFrequency);
+
+      // Restart enemy firing
+      this.enemiesSmall.forEach((enemy) => {
+        if (enemy.startFiring) {
+          enemy.startFiring();
+        }
+      });
+
+      this.enemiesLarge.forEach((enemy) => {
+        if (enemy.startFiring) {
+          enemy.startFiring();
+        }
+      });
+
+      // Restart power-up spawning
+      if (!this.powerUpTimeout) {
+        this.powerUpTimeout = setTimeout(() => this.spawnPowerUps(), 5000);
+      }
+
+      // Restart planet spawning
+      if (!this.planetTimeout) {
+        const nextSpawnTime = Math.random() * (5000 - 2000) + 2000;
+        this.planetTimeout = setTimeout(
+          () => this.spawnBackgroundPlanet(),
+          nextSpawnTime
+        );
+      }
+
+      // Hide pause menu
+      this.pauseMenu.style.display = "none";
+
+      // Resume game soundtrack
+      if (this.gameSoundtrack && this.gameSoundtrack.paused) {
+        this.gameSoundtrack
+          .play()
+          .catch((error) => console.warn("Resume soundtrack error:", error));
+      }
+    }
+  }
+
   spawnBackgroundPlanet() {
-    if (this.gameIsOver) return;
+    if (this.gameIsOver || this.isPaused) return;
 
     this.backgroundPlanets.push(new BackgroundPlanets(this.gameScreen));
 
     // Generate next planet in 2-5 seconds
     const nextSpawnTime = Math.random() * (5000 - 2000) + 2000;
-
-    setTimeout(() => this.spawnBackgroundPlanet(), nextSpawnTime);
+    this.planetTimeout = setTimeout(
+      () => this.spawnBackgroundPlanet(),
+      nextSpawnTime
+    );
   }
 
   start() {
@@ -194,7 +286,6 @@ class Game {
     this.livesContainer.style.display = "flex";
 
     this.spawnPowerUps();
-    setInterval(() => this.spawnPowerUps(), 5000);
     this.spawnBackgroundPlanet();
 
     this.gameIntervalId = setInterval(() => {
@@ -223,8 +314,7 @@ class Game {
       const shipIcon = document.createElement("img");
       shipIcon.src = "./images/shipLife.gif"; // Your ship icon path
       shipIcon.alt = "Ship icon";
-      shipIcon.style.width = "30px"; // You can adjust the size of the ship icons as you like
-      shipIcon.style.marginRight = "5px"; // Space between ships
+      shipIcon.className = "life-gif";
       this.livesContainer.appendChild(shipIcon);
     }
   }
@@ -466,12 +556,17 @@ class Game {
   }
 
   spawnPowerUps() {
+    if (this.gameIsOver || this.isPaused) return;
+
     if (!this.player.hasShield && Math.random() > 0.5) {
       this.shieldPowerUps.push(new ShieldPowerUp(this.gameScreen));
     }
+
     if (!this.player.weaponUpgraded && Math.random() > 0.5) {
       this.weaponPowerUps.push(new WeaponPowerUp(this.gameScreen));
     }
+
+    this.powerUpTimeout = setTimeout(() => this.spawnPowerUps(), 5000);
   }
 
   addShield() {
@@ -495,7 +590,6 @@ class Game {
         this.fadeOutAudio(this.gameSoundtrack);
       } catch (error) {
         console.warn("Error fading game soundtrack:", error);
-
         // Fallback: just pause the audio
         if (this.gameSoundtrack) {
           this.gameSoundtrack.pause();
@@ -504,15 +598,19 @@ class Game {
       }
     }
 
-    // Clear this reference to avoid double-stopping
-    if (this.soundtrack) {
-      this.soundtrack.pause();
-      this.soundtrack.currentTime = 0;
-    }
-
     // Remove player safely
     if (this.player && this.player.element) {
       this.player.element.remove();
+    }
+
+    if (this.powerUpTimeout) {
+      clearTimeout(this.powerUpTimeout);
+      this.powerUpTimeout = null;
+    }
+
+    if (this.planetTimeout) {
+      clearTimeout(this.planetTimeout);
+      this.planetTimeout = null;
     }
 
     // Stop and remove all enemies safely
@@ -572,6 +670,7 @@ class Game {
     if (this.scoreElement) {
       this.scoreElement.style.display = "none";
     }
+
     // Hide game screen and show end screen
     if (this.gameScreen) {
       this.gameScreen.style.display = "none";
@@ -601,46 +700,121 @@ class Game {
       const scoresInStorage =
         JSON.parse(localStorage.getItem("high-scores")) || [];
 
-      // Add current score
-      scoresInStorage.push({
-        name: this.playerName || "???",
-        score: this.score,
-      });
+      // Check if current score qualifies for top 10
+      const isHighScore = this.checkIfHighScore(scoresInStorage, this.score);
 
-      // Sort and keep top 10
-      const topTenScores = scoresInStorage
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 10);
+      // Get the high score form element
+      const highScoreForm = document.getElementById("high-score-form");
+      const highScoreInput = document.getElementById("high-score-input");
+      const submitScoreButton = document.getElementById("submit-score-button");
 
-      // Save back to storage
-      localStorage.setItem("high-scores", JSON.stringify(topTenScores));
+      if (isHighScore) {
+        // Show the high score form
+        highScoreForm.style.display = "block";
 
-      // Clear existing scores display
-      if (this.highScoresListElement) {
-        this.highScoresListElement.innerHTML = "";
+        // Focus on the input
+        setTimeout(() => {
+          highScoreInput.focus();
+        }, 500);
 
-        // Display scores in table format
-        topTenScores.forEach((scoreObject) => {
-          const row = document.createElement("tr");
+        // Handle form submission via button click
+        submitScoreButton.onclick = () => {
+          this.submitHighScore(scoresInStorage);
+        };
+      } else {
+        // No high score, just display the top 10
+        highScoreForm.style.display = "none";
 
-          // Name cell
-          const nameCell = document.createElement("td");
-          nameCell.textContent = scoreObject.name;
-
-          // Score cell
-          const scoreCell = document.createElement("td");
-          scoreCell.textContent = scoreObject.score;
-
-          // Add cells to row
-          row.appendChild(nameCell);
-          row.appendChild(scoreCell);
-
-          // Add row to table
-          this.highScoresListElement.appendChild(row);
+        // Add current score with "Unknown" name
+        scoresInStorage.push({
+          name: "Unknown",
+          score: this.score,
         });
+
+        // Sort and keep top 10
+        const topTenScores = scoresInStorage
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 10);
+
+        // Save back to storage
+        localStorage.setItem("high-scores", JSON.stringify(topTenScores));
+
+        // Update the high scores table
+        this.updateHighScoresTable(topTenScores);
       }
     } catch (error) {
       console.warn("Error handling high scores:", error);
+    }
+  }
+
+  // Check if score is in top 10
+  checkIfHighScore(scores, currentScore) {
+    if (scores.length < 10) {
+      return true;
+    }
+
+    // Sort scores by score value
+    const sortedScores = [...scores].sort((a, b) => b.score - a.score);
+    return currentScore > sortedScores[9].score;
+  }
+
+  // Submit high score
+  submitHighScore(scores) {
+    const highScoreInput = document.getElementById("high-score-input");
+    const highScoreForm = document.getElementById("high-score-form");
+
+    // Get the player's name or set to Unknown, convert to uppercase
+    const playerName = (highScoreInput.value.trim() || "Unknown").toUpperCase();
+
+    // Add the new score
+    scores.push({
+      name: playerName,
+      score: this.score,
+    });
+
+    // Sort and keep top 10
+    const topTenScores = scores.sort((a, b) => b.score - a.score).slice(0, 10);
+
+    // Save back to storage
+    localStorage.setItem("high-scores", JSON.stringify(topTenScores));
+
+    // Hide the form
+    highScoreForm.style.display = "none";
+
+    // Update the high scores table
+    this.updateHighScoresTable(topTenScores);
+  }
+
+  // Update high scores table to display names in uppercase
+  updateHighScoresTable(topTenScores) {
+    // Clear existing scores display
+    if (this.highScoresListElement) {
+      this.highScoresListElement.innerHTML = "";
+
+      // Display scores in table format
+      topTenScores.forEach((scoreObject, index) => {
+        const row = document.createElement("tr");
+
+        // Rank cell
+        const rankCell = document.createElement("td");
+        rankCell.textContent = index + 1;
+
+        // Name cell - ensure uppercase
+        const nameCell = document.createElement("td");
+        nameCell.textContent = scoreObject.name.toUpperCase();
+
+        // Score cell
+        const scoreCell = document.createElement("td");
+        scoreCell.textContent = scoreObject.score;
+
+        // Add cells to row
+        row.appendChild(rankCell);
+        row.appendChild(nameCell);
+        row.appendChild(scoreCell);
+
+        // Add row to table
+        this.highScoresListElement.appendChild(row);
+      });
     }
   }
 }

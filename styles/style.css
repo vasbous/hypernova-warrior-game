@@ -2,6 +2,11 @@ body {
   padding: 0;
   text-align: center;
   background-color: black; /* Add black background to body */
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
 #game-intro {
@@ -13,14 +18,13 @@ body {
 }
 
 #background-video {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
-  object-fit: cover; /* Ensures the video covers the screen */
-  z-index: -1; /* Puts the video behind other elements */
+  object-fit: cover;
+  z-index: -1;
 }
 
 #start-content {
@@ -34,6 +38,10 @@ body {
   padding: 10px 20px;
   font-size: 18px;
   cursor: pointer;
+}
+
+#startButton:hover {
+  background-color: rgb(82, 0, 82);
 }
 
 #intro-sequence {
@@ -58,50 +66,63 @@ body {
   margin-bottom: 20px;
 }
 
-#intro-next-button,
-#intro-skip-button {
-  font-size: 20px;
-  background-color: #870007;
-  color: #fff;
-  padding: 10px 20px;
-  border: 0;
-  border-radius: 5px;
-  margin: 10px;
-  cursor: pointer;
+#game-background-video {
+  position: fixed; /* Fixed position to keep it in the background */
+  top: 0;
+  left: 0;
+  width: 100vw; /* Full screen width */
+  height: 100vh; /* Full screen height */
+  object-fit: cover; /* Ensure the video covers the entire screen */
+  z-index: -10; /* Places the video behind all other content */
 }
 
-#intro-next-button:hover,
-#intro-skip-button:hover {
-  background-color: #a30008;
-}
-
+/* Updated game container layout */
 #game-container {
   display: flex;
-  width: 100vw;
-  padding: 20px 0px;
-  justify-content: center; /* Creates space between stats and game screen */
+  margin: 0 auto;
+  position: relative;
 }
 
-#game-stats {
+/* Add spacing between game stats and game screen */
+.game-stats {
+  position: relative;
+  z-index: 2; /* Ensure game stats are on top */
+  left: -100px;
+  top: 20px;
+  width: 140px;
   text-align: left;
   color: white;
-  margin-right: 20px; /* Adds space between the stats and the game screen */
 }
 
+#score {
+  font-size: 36px;
+  color: white;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  font-weight: bold;
+  color: #ffcc00;
+}
+
+/* Add spacing between Lives text and first icon */
 #lives-container {
-  display: none;
-  gap: 10px; /* Adds space between each life image */
-  margin-top: 10px; /* Adds space between score and lives */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative; /* Add this line */
+  z-index: 2;
+  left: -100px; /* Adjust this value as needed */
+  color: #ffcc00;
+  font-size: 36px;
+  margin-top: 10px;
+  white-space: nowrap;
+  gap: 10px; /* Space between "Lives:" text and first icon */
 }
 
 .life-gif {
-  width: 60px; /* Adjust the size of the ship GIF */
-  height: auto;
-}
-
-/* Hide the lives container on game over */
-#game-end #lives-container {
-  display: none;
+  width: 50px;
+  height: 60px;
+  margin-left: 10px; /* Space between icons */
+  display: inline-block;
 }
 
 .game-intro p {
@@ -109,23 +130,36 @@ body {
   font-family: "Verdana";
 }
 
-.logo-img {
-  width: 650px;
+.title-img {
+  width: 640px;
+  margin: 15px 0;
 }
 
-.arrows-img {
-  width: 150px;
+.logo-vid {
+  width: 640px;
+  margin-bottom: 10px;
+}
+
+.title-img,
+.logo-vid {
+  border: 5px solid rgb(82, 0, 82); /* Change color and thickness as needed */
+  border-radius: 10px; /* Optional: rounded corners */
 }
 
 body button {
   font-size: 30px;
-  background-color: #870007;
-  color: #fff;
+  background-color: rgb(82, 0, 82);
+  color: gold;
   padding: 20px 40px;
-  border: 0;
-  box-shadow: 0;
+  border: 2px solid white;
   border-radius: 5px;
   margin-bottom: 20px;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+body button:hover {
+  background-color: rgb(160, 0, 160);
+  box-shadow: 0 0 40px rgba(160, 0, 160, 0.8); /* glow effect */
 }
 
 #game-intro p {
@@ -150,77 +184,19 @@ body button {
   margin-left: 10px;
 }
 
-/* Make game screen text white and larger */
-#game-container p,
-#game-container span,
-#lives-container {
-  font-size: 36px; /* Double the size to match intro screen */
-  color: white;
-  font-family: "Verdana";
-}
-
-/* Make sure the score display is properly styled */
-#score {
-  font-size: 36px;
-  color: white;
-}
-
-/* Style for lives text */
-#lives-title {
-  font-size: 36px;
-  color: white;
-  margin-right: 10px;
-}
-
 #game-screen {
   display: none;
-  align-content: center;
   margin: 0 auto; /* Center the game screen */
   padding: 0;
   overflow: hidden;
   position: relative;
-  background-color: black; /* Black background */
   background-image: url(../images/my-background.png);
   background-size: cover;
   background-repeat: repeat-y;
   background-position: 0 0;
-  z-index: 0; /* Changed from -2 to 0 */
-}
-
-/* Fix game container layout to prevent shifting */
-#game-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100vw;
-  padding: 20px 0px;
-}
-
-/* Stats container to hold score and lives */
-#game-container > div:first-child {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 10px;
-  position: relative; /* Make position relative */
-}
-
-/* Fixed width for the lives container */
-#lives-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  width: 300px; /* Fixed width */
-  margin: 0 auto; /* Center it */
-}
-
-/* Ensure score display has consistent height */
-#score {
-  display: inline-block;
-  min-width: 50px; /* Ensure score area doesn't collapse */
-  text-align: left;
+  z-index: 2;
+  border: 2px solid white;
+  border-radius: 10px;
 }
 
 /* Game end screen layout */
@@ -230,17 +206,13 @@ body button {
   width: 100vw;
   height: 100vh;
   background-color: black;
-  color: white;
+  color: aqua;
   text-align: center;
   padding: 20px;
-}
-
-/* Position the Game Over heading at the top */
-#game-end h1 {
-  width: 100%;
-  font-size: 48px;
-  margin: 30px 0;
-  text-align: center;
+  background-image: url(../images/star-background.png);
+  background-size: cover; /* Ensures the background covers the full screen */
+  background-position: center; /* Centers the background */
+  background-repeat: no-repeat; /* Prevents tiling */
 }
 
 /* Game over content container */
@@ -254,6 +226,7 @@ body button {
 /* Center the video */
 #game-over-video {
   position: absolute;
+  margin-top: 40px;
   width: 40%; /* Reduced from 50% to 40% (10% smaller) */
   max-height: 60vh;
   left: 30%; /* Adjusted to 30% to maintain center position (since width is now 40%) */
@@ -282,14 +255,18 @@ body button {
 
 /* Restart button below the content */
 #restart-button {
+  position: absolute; /* Change to absolute positioning */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Center horizontally */
+  top: 75%;
   margin-top: 20px;
   z-index: 10;
-  clear: both;
 }
 
 #high-scores-container h3 {
   font-size: 48px;
   text-align: center;
+  color: #ffcc00;
 }
 
 /* High scores table styling refined */
@@ -313,6 +290,26 @@ body button {
   font-size: 24px;
 }
 
+/* Style the header cells */
+#high-scores-table th:nth-child(1),
+#high-scores-table th:nth-child(3) {
+  color: gold;
+}
+
+#high-scores-table th:nth-child(2) {
+  color: aqua;
+}
+
+/* Style the table data cells */
+#high-scores-table td:nth-child(1),
+#high-scores-table td:nth-child(3) {
+  color: gold;
+}
+
+#high-scores-table td:nth-child(2) {
+  color: aqua;
+}
+
 /* Make the score value stand out */
 #final-score {
   font-weight: bold;
@@ -324,4 +321,76 @@ body button {
 #game-end ~ #game-container #score,
 #game-end ~ #game-container #lives-container {
   display: none;
+}
+
+#high-score-form {
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  text-align: center;
+  margin: 20px auto;
+  max-width: 400px;
+}
+
+#high-score-form h3 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #ffcc00;
+}
+
+#high-score-form label {
+  display: block;
+  font-size: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: aqua;
+}
+
+#high-score-input {
+  font-size: 20px;
+  width: 120px;
+  text-align: center;
+  margin: 0 10px;
+  padding: 5px;
+  text-transform: uppercase;
+}
+
+#high-score-input::placeholder {
+  color: lightgray;
+  opacity: 1; /* Firefox requires this */
+}
+
+#submit-score-button {
+  margin-top: 15px;
+  font-size: 20px;
+  padding: 10px 20px;
+}
+
+#pause-menu {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 2px solid #870007;
+  border-radius: 10px;
+  padding: 20px;
+  z-index: 1000;
+  text-align: center;
+  color: white;
+  width: 300px;
+}
+
+#pause-menu h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #ffcc00;
+}
+
+#pause-menu p {
+  font-size: 20px;
+  margin-bottom: 10px;
 }

@@ -16,34 +16,37 @@
           <source src="./assets/start-background.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <img src="./images/temp-logo.png" alt="" class="logo-img" />
+        <img src="./images/title-img.png" alt="" class="title-img" />
+        <br />
+        <video autoplay muted loop class="logo-vid">
+          <source src="./assets/title-logo-vid.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
         <br />
         <button id="start-button">Start Game</button>
-        <p>
-          Use the up, down, left and right arrows to move your fighter! Use
-          Space to fire your lasers!
-        </p>
-        <img src="./images/arrowKeys.png" alt="" class="arrows-img" />
-        <label>
-          Enter your Initials:
-          <input id="name-input" type="text" maxlength="3" />
-        </label>
       </div>
 
       <div id="game-container">
-        <div>
+        <video autoplay muted loop id="game-background-video">
+          <source src="./assets/game-background-vid.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div class="game-stats">
           <p id="score">Score: 0</p>
-          <div id="lives-container">
-            <!-- The lives will be dynamically added here -->
-          </div>
+          <div id="lives-container">Lives:</div>
         </div>
         <!-- #game-screen is initially hidden using CSS style display: none -->
         <div id="game-screen"></div>
+        <div id="pause-menu">
+          <h2>GAME PAUSED</h2>
+          <p>Press ESC to resume</p>
+        </div>
       </div>
 
       <!-- #game-end is initially hidden using CSS style display: none -->
       <div id="game-end">
-        <h1>Game Over</h1>
+        <img src="./images/game-over.png" alt="" class="game-over-img" />
+        <br />
         <video autoplay muted loop id="background-video">
           <source src="./assets/start-background.mp4" type="video/mp4" />
           Your browser does not support the video tag.
@@ -67,15 +70,18 @@
               <table id="high-scores-table">
                 <thead>
                   <tr>
+                    <th>Rank</th>
                     <th>Name</th>
                     <th>Score</th>
                   </tr>
                 </thead>
-                <tbody id="high-scores">
-                  <!-- High scores will be inserted here -->
-                </tbody>
+                <tbody id="high-scores"></tbody>
               </table>
             </div>
+            <div
+              id="high-score-form"
+              style="display: none; margin-top: 20px"
+            ></div>
           </div>
         </div>
 
